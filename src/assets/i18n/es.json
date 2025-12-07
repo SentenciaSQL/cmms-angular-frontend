@@ -1,0 +1,217 @@
+{
+  "app": {
+    "title": "Sistema de Gestión de Mantenimiento",
+    "description": "CMMS - Sistema Computarizado de Gestión de Mantenimiento"
+  },
+  "nav": {
+    "dashboard": "Panel Principal",
+    "workOrders": "Órdenes de Trabajo",
+    "assets": "Activos",
+    "preventiveMaintenance": "Mantenimiento Preventivo",
+    "inventory": "Inventario",
+    "reports": "Reportes",
+    "settings": "Configuración",
+    "personnel": "Personal",
+    "suppliers": "Proveedores",
+    "customers": "Clientes",
+    "companies": "Compañías",
+    "companiesSites": "Compañías y Sitios",
+    "notifications": "Notificaciones"
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "add": "Agregar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "import": "Importar",
+    "close": "Cerrar",
+    "submit": "Enviar",
+    "confirm": "Confirmar",
+    "yes": "Sí",
+    "no": "No",
+    "loading": "Cargando...",
+    "noData": "No hay datos disponibles",
+    "actions": "Acciones",
+    "status": "Estado",
+    "date": "Fecha",
+    "description": "Descripción",
+    "priority": "Prioridad",
+    "assignedTo": "Asignado a",
+    "createdBy": "Creado por",
+    "updatedAt": "Actualizado",
+    "createdAt": "Creado"
+  },
+  "workOrders": {
+    "title": "Órdenes de Trabajo",
+    "new": "Nueva Orden de Trabajo",
+    "edit": "Editar Orden de Trabajo",
+    "number": "Número de Orden",
+    "type": "Tipo",
+    "status": {
+      "pending": "Pendiente",
+      "inProgress": "En Progreso",
+      "completed": "Completada",
+      "cancelled": "Cancelada"
+    },
+    "priority": {
+      "low": "Baja",
+      "medium": "Media",
+      "high": "Alta",
+      "critical": "Crítica"
+    },
+    "fields": {
+      "title": "Título",
+      "description": "Descripción",
+      "asset": "Activo",
+      "assignedTechnician": "Técnico Asignado",
+      "dueDate": "Fecha de Vencimiento",
+      "estimatedHours": "Horas Estimadas",
+      "actualHours": "Horas Reales",
+      "cost": "Costo",
+      "notes": "Notas"
+    },
+    "messages": {
+      "created": "Orden de trabajo creada exitosamente",
+      "updated": "Orden de trabajo actualizada exitosamente",
+      "deleted": "Orden de trabajo eliminada exitosamente",
+      "confirmDelete": "¿Está seguro de eliminar esta orden de trabajo?"
+    }
+  },
+  "assets": {
+    "title": "Activos",
+    "new": "Nuevo Activo",
+    "edit": "Editar Activo",
+    "fields": {
+      "name": "Nombre",
+      "code": "Código",
+      "category": "Categoría",
+      "location": "Ubicación",
+      "manufacturer": "Fabricante",
+      "model": "Modelo",
+      "serialNumber": "Número de Serie",
+      "purchaseDate": "Fecha de Compra",
+      "warrantyExpiration": "Vencimiento de Garantía",
+      "status": "Estado",
+      "condition": "Condición"
+    },
+    "status": {
+      "operational": "Operativo",
+      "maintenance": "En Mantenimiento",
+      "outOfService": "Fuera de Servicio",
+      "retired": "Retirado"
+    },
+    "messages": {
+      "created": "Activo creado exitosamente",
+      "updated": "Activo actualizado exitosamente",
+      "deleted": "Activo eliminado exitosamente"
+    }
+  },
+  "inventory": {
+    "title": "Inventario",
+    "parts": "Repuestos",
+    "new": "Nuevo Artículo",
+    "fields": {
+      "partNumber": "Número de Parte",
+      "name": "Nombre",
+      "quantity": "Cantidad",
+      "minQuantity": "Cantidad Mínima",
+      "unitPrice": "Precio Unitario",
+      "supplier": "Proveedor",
+      "category": "Categoría",
+      "location": "Ubicación"
+    },
+    "messages": {
+      "lowStock": "Stock bajo",
+      "outOfStock": "Sin existencias"
+    }
+  },
+  "reports": {
+    "title": "Reportes",
+    "generate": "Generar Reporte",
+    "types": {
+      "workOrdersSummary": "Resumen de Órdenes de Trabajo",
+      "assetPerformance": "Rendimiento de Activos",
+      "maintenanceCosts": "Costos de Mantenimiento",
+      "inventoryStatus": "Estado del Inventario",
+      "technicianProductivity": "Productividad de Técnicos"
+    },
+    "period": {
+      "today": "Hoy",
+      "week": "Esta Semana",
+      "month": "Este Mes",
+      "quarter": "Este Trimestre",
+      "year": "Este Año",
+      "custom": "Personalizado"
+    }
+  },
+  "dashboard": {
+    "welcome": "Bienvenido al CMMS",
+    "statistics": {
+      "openWorkOrders": "Órdenes Abiertas",
+      "completedToday": "Completadas Hoy",
+      "assets": "Total de Activos",
+      "lowStockItems": "Artículos con Stock Bajo"
+    },
+    "recentActivity": "Actividad Reciente",
+    "upcomingMaintenance": "Mantenimiento Próximo"
+  },
+  "auth": {
+    "login": "Iniciar Sesión",
+    "logout": "Cerrar Sesión",
+    "username": "Usuario",
+    "password": "Contraseña",
+    "email": "Correo Electrónico",
+    "rememberMe": "Recordarme",
+    "forgotPassword": "¿Olvidó su contraseña?",
+    "register": "Registrarse",
+    "title": "Iniciar sesión",
+    "subtitle": "¡Ingresa tu nombre de usuario y contraseña para iniciar sesión!",
+    "googleSignIn": "Iniciar con Google",
+    "xSignIn": "Iniciar sesión con X",
+    "noAccount": "¿No tienes una cuenta?",
+    "or": "O",
+    "emailOrUsername": "Correo electrónico o nombre de usuario",
+    "insertUsername": "Ingresa tu usuario",
+    "insertPassword": "Ingresa tu contraseña",
+    "errors" : {
+      "usernameRequired": "El nombre de usuario o email es obligatorio.",
+      "usernameMinLength": "El nombre de usuario debe tener al menos {{length}} caracteres.",
+      "passwordRequired": "La contraseña es obligatoria.",
+      "passwordMinLength": "La contraseña debe tener al menos {{length}} caracteres.",
+      "invalidCredentials": "Credenciales inválidas. Por favor, inténtelo de nuevo.",
+      "accountLocked": "Su cuenta ha sido bloqueada. Contacte al administrador.",
+      "sessionExpired": "Su sesión ha expirado. Por favor, inicie sesión nuevamente.",
+      "insufficientPermissions": "No tiene permisos suficientes para acceder a este recurso.",
+      "emailInUse": "El correo electrónico ya está en uso.",
+      "loginFailed": "Error al iniciar sesión. Por favor, verifique sus credenciales."
+    }
+  },
+  "validation": {
+    "required": "Este campo es obligatorio",
+    "email": "Debe ingresar un correo electrónico válido",
+    "minLength": "Debe tener al menos {{length}} caracteres",
+    "maxLength": "No debe exceder {{length}} caracteres",
+    "pattern": "Formato inválido",
+    "min": "El valor mínimo es {{min}}",
+    "max": "El valor máximo es {{max}}"
+  },
+  "errors": {
+    "generic": "Ocurrió un error. Por favor intente nuevamente.",
+    "notFound": "No se encontró el recurso solicitado",
+    "unauthorized": "No tiene autorización para realizar esta acción",
+    "networkError": "Error de conexión. Verifique su conexión a internet.",
+    "errorMessage": "Mensaje de error"
+  },
+  "account": {
+    "profile": "Perfil",
+    "editProfile": "Editar Perfil",
+    "settings": "Cuenta",
+    "support": "Soporte",
+    "logout": "Cerrar Sesión",
+    "signOut": "Salir"
+  }
+}

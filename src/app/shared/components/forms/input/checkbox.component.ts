@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {Component, Input, Output, EventEmitter, forwardRef} from '@angular/core';
+import {NG_VALUE_ACCESSOR} from '@angular/forms';
 
 @Component({
   selector: 'app-checkbox',
@@ -16,7 +17,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
       class="w-5 h-5 appearance-none cursor-pointer dark:border-gray-700 border border-gray-300 checked:border-transparent rounded-md checked:bg-brand-500 disabled:opacity-60"
       [ngClass]="className"
       [checked]="checked"
-      (change)="onChange($event)"
+      (change)="onChangeInput($event)"
       [disabled]="disabled"
     />
     @if (checked) {
@@ -69,7 +70,14 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
   }
 </label>
   `,
-  styles: ``
+  styles: ``,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => CheckboxComponent),
+      multi: true,
+    },
+  ]
 })
 export class CheckboxComponent {
 
@@ -80,8 +88,42 @@ export class CheckboxComponent {
   @Input() disabled = false;
   @Output() checkedChange = new EventEmitter<boolean>();
 
-  onChange(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.checkedChange.emit(input.checked);
+  private onChange: (value: boolean) => void = () => {};
+  private onTouched: () => void = () => {};
+
+  writeValue(obj: any): void {
+    this.checked = !!obj;
   }
+
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+  }
+
+  onChangeInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.checked = input.checked;
+
+    // Avisamos al FormControl
+    this.onChange(this.checked);
+
+    // Y al padre si usa (checkedChange)
+    this.checkedChange.emit(this.checked);
+  }
+
+  onBlur() {
+    this.onTouched();
+  }
+
+  // onChange(event: Event) {
+  //   const input = event.target as HTMLInputElement;
+  //   this.checkedChange.emit(input.checked);
+  // }
 }

@@ -1,10 +1,13 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
-import { SidebarService } from '../../services/sidebar.service';
+import {Component, ElementRef, inject, ViewChild} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { ThemeToggleButtonComponent } from '../../components/common/theme-toggle/theme-toggle-button.component';
-import { NotificationDropdownComponent } from '../../components/header/notification-dropdown/notification-dropdown.component';
-import { UserDropdownComponent } from '../../components/header/user-dropdown/user-dropdown.component';
+import {ThemeToggleButtonComponent} from '../../shared/components/common/theme-toggle/theme-toggle-button.component';
+import {UserDropdownComponent} from '../../shared/components/header/user-dropdown/user-dropdown.component';
+import {
+  NotificationDropdownComponent
+} from '../../shared/components/header/notification-dropdown/notification-dropdown.component';
+import {SidebarService} from '../../shared/services/sidebar.service';
+import {LanguageSelectorComponent} from '../../shared/components/common/language-selector/language-selector.component';
 
 @Component({
   selector: 'app-header',
@@ -14,6 +17,7 @@ import { UserDropdownComponent } from '../../components/header/user-dropdown/use
     ThemeToggleButtonComponent,
     NotificationDropdownComponent,
     UserDropdownComponent,
+    LanguageSelectorComponent,
   ],
   templateUrl: './app-header.component.html',
 })

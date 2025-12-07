@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
-import { ComponentCardComponent } from "../../../shared/components/common/component-card/component-card.component";
-import { PageBreadcrumbComponent } from "../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
-import { ButtonComponent } from "../../../shared/components/ui/button/button.component";
+import {ComponentCardComponent} from '../../common/component-card/component-card.component';
+import {PageBreadcrumbComponent} from '../../common/page-breadcrumb/page-breadcrumb.component';
+import {ButtonComponent} from '../../ui/button/button.component';
 
 @Component({
   selector: "app-buttons",

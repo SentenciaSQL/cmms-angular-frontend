@@ -58,8 +58,8 @@
               'justify-start': (isExpanded$ | async) || (isHovered$ | async)
             }"
           >
-            @if ((isExpanded$ | async) || (isHovered$ | async) || (isMobileOpen$ | async)) 
-            { Menu } 
+            @if ((isExpanded$ | async) || (isHovered$ | async) || (isMobileOpen$ | async))
+            { Menu }
            @else {
             <svg
               width="1em"
@@ -106,9 +106,9 @@
                   (isMobileOpen$ | async)) {
 
                   <span class="menu-item-text">
-                    {{ nav.name }}
+                    {{ nav.nameKey | translate }}
                   </span>
-                  } 
+                  }
                   @if (nav.new && ((isExpanded$ | async) || (isHovered$ |
                   async) || (isMobileOpen$ | async))) {
                   <span
@@ -120,7 +120,7 @@
                   >
                     new
                   </span>
-                  } 
+                  }
                   @if ((isExpanded$ | async) || (isHovered$ | async) ||
                   (isMobileOpen$ | async)) {
                   <svg
@@ -148,8 +148,8 @@
                   class="overflow-hidden transition-all duration-300"
                   [id]="'main-' + i"
                   [style.display]="
-                    (isExpanded$ | async) || (isHovered$ | async) || (isMobileOpen$ | async) 
-                      ? 'block' 
+                    (isExpanded$ | async) || (isHovered$ | async) || (isMobileOpen$ | async)
+                      ? 'block'
                       : 'none'
                   "
                   [ngStyle]="{
@@ -172,7 +172,7 @@
                               'menu-dropdown-item-active': isActive(subItem.path),
                             }"
                       >
-                        {{ subItem.name }}
+                        {{ subItem.nameKey | translate }}
                         <span class="flex items-center gap-1 ml-auto">
                           @if (subItem.new) {
                           <span
@@ -231,7 +231,7 @@
                     class="menu-item-text"
                   >
                     @if ((isExpanded$ | async) || (isHovered$ | async) || (isMobileOpen$ | async)) {
-                    {{ nav.name }}
+                      {{ nav.nameKey | translate }}
                     }
                   </span>
                 </a>
@@ -283,15 +283,15 @@
           </h2>
 
           <ul class="flex flex-col gap-1">
-            @for (nav of othersItems; track $index;let i = $index) {
+            @for (nav of othersItems; track $index;) {
             <li>
               @if (nav.subItems) {
                 <button
-                  (click)="toggleSubmenu('others',i)"
+                  (click)="toggleSubmenu('others',$index)"
                   class="menu-item group cursor-pointer"
                   [ngClass]="{
-                     'menu-item-active': openSubmenu === 'others-' + i,
-                     'menu-item-inactive': openSubmenu !== 'others-' + i,
+                     'menu-item-active': openSubmenu === 'others-' + $index,
+                     'menu-item-inactive': openSubmenu !== 'others-' + $index,
                     'xl:justify-center': !(
                       (isExpanded$ | async) || (isHovered$ | async)
                     ),
@@ -302,8 +302,8 @@
                   <span
                     class="menu-item-icon-size"
                     [ngClass]="{
-                      'menu-item-icon-active': openSubmenu === 'others-' + i,
-                      'menu-item-icon-inactive': openSubmenu !== 'others-' + i,
+                      'menu-item-icon-active': openSubmenu === 'others-' + $index,
+                      'menu-item-icon-inactive': openSubmenu !== 'others-' + $index,
                     }"
                     [innerHTML]="nav.icon | safeHtml"
                   >
@@ -312,26 +312,26 @@
                   (isMobileOpen$ | async)) {
 
                   <span class="menu-item-text">
-                    {{ nav.name }}
+                    {{ nav.nameKey | translate }}
                   </span>
-                  } 
+                  }
                   @if (nav.new && ((isExpanded$ | async) || (isHovered$ |
                   async) || (isMobileOpen$ | async))) {
                   <span
                     class="ml-auto absolute right-10 menu-dropdown-badge"
                     [ngClass]="{
-                      'menu-dropdown-badge-active': openSubmenu === 'others-' + i,
-                      'menu-dropdown-badge-inactive': openSubmenu !== 'others-' + i
+                      'menu-dropdown-badge-active': openSubmenu === 'others-' + $index,
+                      'menu-dropdown-badge-inactive': openSubmenu !== 'others-' + $index
                     }"
                   >
                     new
                   </span>
-                  } 
+                  }
                   @if ((isExpanded$ | async) || (isHovered$ | async) ||
                   (isMobileOpen$ | async)) {
                   <svg
                     [ngClass]="{
-                      'rotate-180 text-brand-500': openSubmenu === 'others-' + i
+                      'rotate-180 text-brand-500': openSubmenu === 'others-' + $index
                     }"
                     width="1em"
                     height="1em"
@@ -352,16 +352,16 @@
                 </button>
                 <div
                   class="overflow-hidden transition-all duration-300"
-                  [id]="'others-' + i"
+                  [id]="'others-' + $index"
                   [style.display]="
-                    (isExpanded$ | async) || (isHovered$ | async) || (isMobileOpen$ | async) 
-                      ? 'block' 
+                    (isExpanded$ | async) || (isHovered$ | async) || (isMobileOpen$ | async)
+                      ? 'block'
                       : 'none'
                   "
                   [ngStyle]="{
                     height:
-                      openSubmenu === 'others-' + i
-                        ? (subMenuHeights['others-' + i] || 0) + 'px'
+                      openSubmenu === 'others-' + $index
+                        ? (subMenuHeights['others-' + $index] || 0) + 'px'
                         : '0px'
                   }"
                 >
@@ -378,7 +378,7 @@
                               'menu-dropdown-item-active': isActive(subItem.path),
                             }"
                       >
-                        {{ subItem.name }}
+                        {{ subItem.nameKey | translate }}
                         <span class="flex items-center gap-1 ml-auto">
                           @if (subItem.new) {
                           <span
@@ -437,7 +437,7 @@
                     class="menu-item-text"
                   >
                     @if ((isExpanded$ | async) || (isHovered$ | async) || (isMobileOpen$ | async)) {
-                    {{ nav.name }}
+                      {{ nav.nameKey | translate }}
                     }
                   </span>
                 </a>
@@ -450,8 +450,8 @@
         <!-- end other section -->
       </div>
     </nav>
-    @if ((isExpanded$ | async) || (isHovered$ | async) || (isMobileOpen$ | async)) {
-    <app-sidebar-widget />
-    }
+<!--    @if ((isExpanded$ | async) || (isHovered$ | async) || (isMobileOpen$ | async)) {-->
+<!--    <app-sidebar-widget />-->
+<!--    }-->
   </div>
 </aside>

@@ -1,0 +1,70 @@
+@if (!buttonStyleRounded) {
+  <div class="flex items-center gap-2 language-selector">
+    <!-- Español -->
+    <button
+      class="
+      flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium
+      transition-all duration-200 border
+      bg-base-200 hover:bg-base-300
+      dark:bg-zinc-700 dark:hover:bg-zinc-600
+      border-transparent dark:border-zinc-600
+    "
+      [ngClass]="{
+      'bg-primary text-primary-content border-primary shadow-md dark:bg-primary dark:text-white':
+        currentLang() === 'es'
+    }"
+      (click)="changeLanguage('es')"
+      title="Español"
+    >
+      <img
+        ngSrc="assets/flags/spain.svg"
+        alt="Español"
+        class="w-4 h-4 object-cover rounded-sm"
+        height="512" width="512"
+      />
+      <span class="uppercase tracking-wide">ES</span>
+    </button>
+
+    <!-- Inglés -->
+    <button
+      class="
+      flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium
+      transition-all duration-200 border
+      bg-base-200 hover:bg-base-300
+      dark:bg-zinc-700 dark:hover:bg-zinc-600
+      border-transparent dark:border-zinc-600
+    "
+      [ngClass]="{
+      'bg-primary text-primary-content border-primary shadow-md dark:bg-primary dark:text-white':
+        currentLang() === 'en'
+    }"
+      (click)="changeLanguage('en')"
+      title="English"
+    >
+      <img
+        ngSrc="assets/flags/united-kingdom.svg"
+        alt="English"
+        class="w-4 h-4 object-cover rounded-sm"
+        height="512" width="512"
+      />
+      <span class="uppercase tracking-wide">EN</span>
+    </button>
+  </div>
+} @else {
+  <div class="language-selector float-left mr-3">
+    @if (currentLang() == 'en') {
+    <button
+      class="size-14 rounded-full overflow-hidden border p-0"
+      (click)="changeLanguage('es')">
+      <img ngSrc="assets/flags/spain.svg" alt="Español" class="w-full h-full object-cover" height="512" width="512"/>
+    </button>
+    } @else {
+      <button
+        class="size-14 rounded-full overflow-hidden border p-0"
+        (click)="changeLanguage('en')">
+        <img ngSrc="assets/flags/united-kingdom.svg" alt="English" class="w-full h-full object-cover" height="512" width="512"/>
+      </button>
+    }
+
+  </div>
+}

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { SafeHtmlPipe } from '../../../pipe/safe-html.pipe';
 import { RouterModule } from '@angular/router';
+import {SafeHtmlPipe} from '../../../pipes/safe-html.pipe';
 
 @Component({
   selector: 'app-alert',

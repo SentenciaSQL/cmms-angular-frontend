@@ -1,0 +1,35 @@
+<div class="relative z-1 bg-white p-6 sm:p-0 dark:bg-gray-900">
+  <div
+    class="relative flex h-screen w-full flex-col justify-center sm:p-0 lg:flex-row dark:bg-gray-900"
+  >
+    <div class="flex w-full flex-1 flex-col lg:w-1/2 justify-center">
+      <router-outlet />
+    </div>
+
+    <div
+      class="items-center hidden w-full h-full lg:w-1/2 bg-brand-950 dark:bg-white/5 lg:grid relative"
+    >
+      <div class="flex items-center justify-center z-1">
+        <!-- ===== Common Grid Shape Start ===== -->
+        <app-grid-shape />
+        <div class="flex flex-col items-center max-w-xs">
+          <a routerLink="/" class="block mb-4">
+            <img
+              width="231"
+              height="48"
+              ngSrc="/images/logo/logo-cmms.svg"
+              alt="Logo"
+            />
+          </a>
+          <p class="text-center text-gray-400 dark:text-white/60">
+            {{ 'app.description' | translate }}
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="fixed z-50 hidden bottom-6 right-6 sm:block gap-5 float-left">
+      <app-language-selector [buttonStyleRounded]="true"></app-language-selector>
+      <app-theme-toggle-two />
+    </div>
+  </div>
+</div>

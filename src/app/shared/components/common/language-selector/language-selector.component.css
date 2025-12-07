@@ -1,0 +1,70 @@
+.language-selector {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.lang-btn:hover {
+  border-color: #2196F3;
+  background: #f5f5f5;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.lang-btn.active {
+  border-color: #2196F3;
+}
+
+.flag {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.lang-code {
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.lang-btn:active {
+  transform: translateY(0);
+}
+
+.fi {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+
+  /* Force the flag content to fill the circle */
+  mask-size: cover !important;
+  -webkit-mask-size: cover !important;
+  background-size: cover !important;
+
+  mask-position: center !important;
+  -webkit-mask-position: center !important;
+}
+
+
+@media (max-width: 640px) {
+  .lang-code {
+    display: none;
+  }
+
+  .lang-btn {
+    padding: 8px;
+  }
+}
