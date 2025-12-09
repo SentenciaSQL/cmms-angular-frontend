@@ -46,7 +46,7 @@ export const routes: Routes = [
       },
       {
         path: 'maintenance-plans',
-        loadComponent: () => import('./features/maintenance-plans/maintenance-plans.component').then(m => m.MaintenancePlansComponent)
+        loadChildren: () => import('./features/maintenance-plans/maintenance-plans.routes').then(m => m.MAINTENANCE_PLANS_ROUTES)
       },
       {
         path: 'inventory',

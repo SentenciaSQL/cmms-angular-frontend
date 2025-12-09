@@ -10,6 +10,7 @@ import {ButtonComponent} from '../../../shared/components/ui/button/button.compo
 import {TranslatePipe} from '../../../shared/pipes/translate-pipe';
 import {TranslationService} from '../../../shared/services/translation.service';
 import {AlertComponent} from '../../../shared/components/ui/alert/alert.component';
+import {FormValidationHelper} from '../../../core/constants/form-validation.helper';
 
 @Component({
   selector: 'app-login',
@@ -65,44 +66,74 @@ export class LoginComponent implements OnInit {
 
   // ¿El control es inválido y ya se debería mostrar el error?
   isInvalid(controlName: string): boolean {
-    const control = this.loginForm.get(controlName);
-    return !!(
-      control &&
-      control.invalid &&
-      (control.dirty || control.touched || this.submitted)
+    // const control = this.loginForm.get(controlName);
+    // return !!(
+    //   control &&
+    //   control.invalid &&
+    //   (control.dirty || control.touched || this.submitted)
+    // );
+    return FormValidationHelper.isInvalid(
+      this.loginForm,
+      controlName,
+      this.submitted
     );
   }
 
   // Mensaje para usernameOrEmail
   get usernameOrEmailHint(): string | undefined {
-    const control = this.loginForm.get('usernameOrEmail');
-    if (!control || !(control.dirty || control.touched || this.submitted)) return;
-
-    if (control.hasError('required')) {
-      return this.translation.translate('auth.errors.usernameRequired');
-    }
-
-    if (control.hasError('minlength')) {
-      return  this.translation.translate('auth.errors.usernameMinLength', { length: 3 });
-    }
-
-    return;
+    // const control = this.loginForm.get('usernameOrEmail');
+    // if (!control || !(control.dirty || control.touched || this.submitted)) return;
+    //
+    // if (control.hasError('required')) {
+    //   return this.translation.translate('auth.errors.usernameRequired');
+    // }
+    //
+    // if (control.hasError('minlength')) {
+    //   return  this.translation.translate('auth.errors.usernameMinLength', { length: 3 });
+    // }
+    //
+    // return;
+    return FormValidationHelper.getErrorMessage(
+      this.loginForm,
+      'usernameOrEmail',
+      {
+        required: this.translation.translate('auth.errors.usernameRequired'),
+        minlength: (error) => this.translation.translate(
+          'auth.errors.usernameMinLength',
+          { length: error.requiredLength }
+        )
+      },
+      this.submitted
+    );
   }
 
   // Mensaje para password
   get passwordHint(): string | undefined {
-    const control = this.loginForm.get('password');
-    if (!control || !(control.dirty || control.touched || this.submitted)) return;
+    // const control = this.loginForm.get('password');
+    // if (!control || !(control.dirty || control.touched || this.submitted)) return;
+    //
+    // if (control.hasError('required')) {
+    //   return this.translation.translate('auth.errors.passwordRequired');
+    // }
+    //
+    // if (control.hasError('minlength')) {
+    //   return this.translation.translate('auth.errors.passwordMinLength', { length: 6 });
+    // }
+    //
+    // return;
 
-    if (control.hasError('required')) {
-      return this.translation.translate('auth.errors.passwordRequired');
-    }
-
-    if (control.hasError('minlength')) {
-      return this.translation.translate('auth.errors.passwordMinLength', { length: 6 });
-    }
-
-    return;
+    return FormValidationHelper.getErrorMessage(
+      this.loginForm,
+      'password',
+      {
+        required: this.translation.translate('auth.errors.passwordRequired'),
+        minlength: (error) => this.translation.translate(
+          'auth.errors.passwordMinLength',
+          { length: error.requiredLength }
+        )
+      },
+      this.submitted
+    );
   }
 
   onSignIn() {

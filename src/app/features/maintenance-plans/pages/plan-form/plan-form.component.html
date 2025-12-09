@@ -1,0 +1,97 @@
+<div>
+  <app-page-breadcrumb pageTitle="Planes de Mantenimiento" />
+  <div class="min-h-screen rounded-2xl border border-gray-200 bg-white px-5 py-7 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-12">
+    <h3 class="mb-4 font-semibold text-gray-800 text-theme-xl dark:text-white/90 sm:text-xl">
+      {{ isEditMode ? 'Editar Plan de Mantenimiento' : 'Nuevo Plan de Mantenimiento' }}
+    </h3>
+
+    @if (loading) {
+      <div class="flex h-screen items-center justify-center bg-white dark:bg-boxdark">
+        <div class="h-16 w-16 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+      </div>
+    }
+
+    @if (!loading) {
+      <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div class="border-b border-stroke px-6.5 py-4 dark:border-strokedark">
+          <h3 class="font-medium text-black dark:text-white">
+            Información del Plan
+          </h3>
+        </div>
+
+        @if (error) {
+        <div class="m-3">
+          <app-alert
+            variant="error"
+            title="{{ 'errors.errorMessage' | translate }}"
+            message="{{ error }}"
+            [showLink]="false"
+          />
+        </div>
+        }
+
+        <form [formGroup]="planForm" (ngSubmit)="onSubmit()" class="p-6.5">
+          <div class="mb-4.5 flex flex-col gap-6 xl:flex-row">
+            <div class="w-full xl:w-1/2">
+              <app-label>Nombre del Plan <span class="text-error-500">*</span></app-label>
+              <app-input-field
+                id="name"
+                type="text"
+                placeholder="Ingrese el nombre del plan"
+                formControlName="name"
+                name="name"
+                class="form-input"
+                required
+                [error]="isInvalid('name')"
+                [hint]="nameHint"
+              />
+            </div>
+
+            <div class="w-full xl:w-1/2">
+              <app-label>Activo <span class="text-error-500">*</span></app-label>
+              <app-select
+                [options]="assets"
+                placeholder="Select Option"
+                
+                [value]="selectedValue"
+                (valueChange)="handleSelectChange($event)"
+                className="dark:bg-dark-900"
+                [error]="isInvalid('assetId')"
+                [hint]="assetsHint"
+              ></app-select>
+            </div>
+          </div>
+
+          <div class="mb-4.5">
+            <app-label>Descripción <span class="text-error-500">*</span></app-label>
+            <app-text-area
+              [value]="description"
+              (valueChange)="description = $event"
+              [rows]="6"
+            ></app-text-area>
+          </div>
+
+
+
+          <div class="flex gap-4.5">
+<!--            <app-button-->
+<!--              className="w-full"-->
+<!--              size="sm"-->
+<!--              [disabled]="loading"-->
+<!--              (btnClick)="onSubmit()"-->
+<!--            >-->
+<!--              {{ 'auth.login' | translate }}-->
+<!--            </app-button>-->
+            <app-button size="sm" variant="primary" [startIcon]="boxIcon">
+              Button Text
+            </app-button>
+          </div>
+
+        </form>
+      </div>
+    }
+
+  </div>
+
+
+</div>

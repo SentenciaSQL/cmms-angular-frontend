@@ -7,8 +7,9 @@ import {
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import {provideHttpClient, withFetch} from '@angular/common/http';
+import {provideHttpClient, withFetch, withInterceptors} from '@angular/common/http';
 import {TranslationService} from './shared/services/translation.service';
+import {authInterceptor} from './core/interceptors/auth-interceptor';
 
 /**
  * Función de inicialización que carga las traducciones antes de que la app se renderice
@@ -22,7 +23,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     // provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     {
       provide: APP_INITIALIZER,
       useFactory: initializeApp,
