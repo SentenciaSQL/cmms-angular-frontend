@@ -1,6 +1,6 @@
 # CMMS Manager - Frontend
 
-Computerized Maintenance Management System (CMMS) built with Angular 19+ and TailAdmin template.
+Computerized Maintenance Management System (CMMS) built with Angular 21+ and TailAdmin template.
 
 ## 🚀 Technologies
 
