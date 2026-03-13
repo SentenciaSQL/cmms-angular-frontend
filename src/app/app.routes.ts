@@ -62,7 +62,7 @@ export const routes: Routes = [
       },
       {
         path: 'companies-sites',
-        loadComponent: () => import('./features/companies/companies.component').then(m => m.CompaniesComponent)
+        loadChildren: () => import('./features/companies/companies.routes').then(m => m.COMPANIES_ROUTES)
       },
       {
         path: 'suppliers',
