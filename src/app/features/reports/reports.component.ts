@@ -1,11 +1,4 @@
 import { Component } from '@angular/core';
-
-@Component({
-  selector: 'app-reports',
-  imports: [],
-  templateUrl: './reports.component.html',
-  styleUrl: './reports.component.css',
-})
-export class ReportsComponent {
-
-}
+import { RouterOutlet } from '@angular/router';
+@Component({ selector: 'app-reports', standalone: true, imports: [RouterOutlet], template: '<router-outlet />' })
+export class ReportsComponent {}

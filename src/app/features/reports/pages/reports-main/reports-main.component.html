@@ -1,0 +1,384 @@
+<div><app-page-breadcrumb pageTitle="Reportes" /></div>
+
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+
+  <div class="mb-6">
+    <h2 class="text-title-md2 font-bold text-black dark:text-white">Reportes y Análisis</h2>
+    <p class="text-sm text-gray-500 mt-1">Reportes operacionales, comparativos de técnicos e historial de activos</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="mb-6 flex gap-1 border-b border-stroke dark:border-strokedark">
+    <button (click)="setTab('monthly')"
+      class="px-5 py-3 text-sm font-medium border-b-2 transition-colors -mb-px"
+      [class.border-primary]="activeTab==='monthly'" [class.text-primary]="activeTab==='monthly'"
+      [class.border-transparent]="activeTab!=='monthly'" [class.text-gray-500]="activeTab!=='monthly'"
+      [class.hover:text-black]="activeTab!=='monthly'">
+      📊 Reporte Mensual
+    </button>
+    <button (click)="setTab('technicians')"
+      class="px-5 py-3 text-sm font-medium border-b-2 transition-colors -mb-px"
+      [class.border-primary]="activeTab==='technicians'" [class.text-primary]="activeTab==='technicians'"
+      [class.border-transparent]="activeTab!=='technicians'" [class.text-gray-500]="activeTab!=='technicians'">
+      👥 Performance Técnicos
+    </button>
+    <button (click)="setTab('asset')"
+      class="px-5 py-3 text-sm font-medium border-b-2 transition-colors -mb-px"
+      [class.border-primary]="activeTab==='asset'" [class.text-primary]="activeTab==='asset'"
+      [class.border-transparent]="activeTab!=='asset'" [class.text-gray-500]="activeTab!=='asset'">
+      🔧 Historial de Activo
+    </button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       TAB 1: REPORTE MENSUAL
+  ═══════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab==='monthly'">
+
+    <!-- Selector de mes + acciones -->
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex items-center gap-3">
+        <label class="text-sm font-medium text-black dark:text-white">Mes:</label>
+        <input type="month" [(ngModel)]="selectedMonth" (change)="loadMonthly()"
+          class="rounded-lg border border-stroke bg-transparent px-4 py-2 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+      </div>
+      <div class="flex gap-2" *ngIf="monthlyReport">
+        <button (click)="exportPdf()" [disabled]="exportingPdf"
+          class="inline-flex items-center gap-2 rounded-md border border-red-300 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:border-red-700 dark:hover:bg-red-900/20 disabled:opacity-50 transition-colors">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/>
+          </svg>
+          {{ exportingPdf ? 'Exportando...' : 'Exportar PDF' }}
+        </button>
+        <button (click)="exportExcel()" [disabled]="exportingExcel"
+          class="inline-flex items-center gap-2 rounded-md border border-green-300 px-4 py-2 text-sm font-medium text-green-700 hover:bg-green-50 dark:border-green-700 dark:hover:bg-green-900/20 disabled:opacity-50 transition-colors">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/>
+          </svg>
+          {{ exportingExcel ? 'Exportando...' : 'Exportar Excel' }}
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="loadingMonthly" class="flex justify-center py-20">
+      <div class="h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+    </div>
+
+    <div *ngIf="monthlyError" class="rounded-md border border-red-200 bg-red-50 p-5">
+      <p class="text-red-700">{{ monthlyError }}</p>
+      <button (click)="loadMonthly()" class="mt-2 text-sm text-red-600 underline">Reintentar</button>
+    </div>
+
+    <div *ngIf="!loadingMonthly && !monthlyError && monthlyReport">
+
+      <!-- KPIs row -->
+      <div class="mb-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div class="rounded-sm border border-stroke bg-white p-5 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <p class="text-xs text-gray-500 mb-1">Total OTs</p>
+          <p class="text-3xl font-bold text-black dark:text-white">{{ monthlyReport.totalWorkOrders }}</p>
+        </div>
+        <div class="rounded-sm border border-stroke bg-white p-5 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <p class="text-xs text-gray-500 mb-1">Completadas</p>
+          <p class="text-3xl font-bold text-green-600">{{ monthlyReport.completedWorkOrders }}</p>
+          <p class="text-xs text-gray-400 mt-1">{{ completionRate }}% tasa</p>
+        </div>
+        <div class="rounded-sm border border-stroke bg-white p-5 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <p class="text-xs text-gray-500 mb-1">Canceladas</p>
+          <p class="text-3xl font-bold text-red-500">{{ monthlyReport.cancelledWorkOrders }}</p>
+        </div>
+        <div class="rounded-sm border border-stroke bg-white p-5 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <p class="text-xs text-gray-500 mb-1">Activos Atendidos</p>
+          <p class="text-3xl font-bold text-black dark:text-white">{{ monthlyReport.assetsServiced }}</p>
+        </div>
+      </div>
+
+      <!-- Segunda fila: tiempos + costos -->
+      <div class="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-sm border border-stroke bg-white p-5 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <p class="text-xs text-gray-500 mb-1">Tiempo Prom. Completación</p>
+          <p class="text-2xl font-bold text-black dark:text-white">
+            {{ monthlyReport.avgCompletionTime ? (monthlyReport.avgCompletionTime | number:'1.1-1') + ' hrs' : '—' }}
+          </p>
+        </div>
+        <div class="rounded-sm border border-stroke bg-white p-5 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <p class="text-xs text-gray-500 mb-1">Tiempo Prom. Respuesta</p>
+          <p class="text-2xl font-bold text-black dark:text-white">
+            {{ monthlyReport.avgResponseTime ? (monthlyReport.avgResponseTime | number:'1.1-1') + ' hrs' : '—' }}
+          </p>
+        </div>
+        <div class="rounded-sm border border-stroke bg-white p-5 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <p class="text-xs text-gray-500 mb-1">Costo Total</p>
+          <p class="text-2xl font-bold text-black dark:text-white">
+            {{ monthlyReport.totalCosts ? '$' + (monthlyReport.totalCosts | number:'1.2-2') : '—' }}
+          </p>
+        </div>
+        <div class="rounded-sm border border-stroke bg-white p-5 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <p class="text-xs text-gray-500 mb-1">Costo Mano de Obra</p>
+          <p class="text-2xl font-bold text-black dark:text-white">
+            {{ monthlyReport.totalLaborCosts ? '$' + (monthlyReport.totalLaborCosts | number:'1.2-2') : '—' }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Por prioridad + por técnico -->
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+
+        <!-- OTs por Prioridad -->
+        <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <h4 class="mb-5 font-semibold text-black dark:text-white">OTs por Prioridad</h4>
+          <div *ngIf="priorityEntries.length === 0" class="text-center py-6 text-sm text-gray-400">Sin datos</div>
+          <div class="space-y-4">
+            <div *ngFor="let p of priorityEntries">
+              <div class="flex items-center justify-between mb-1">
+                <span [class]="getPriorityBadge(p.key)"
+                  class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium">{{ p.key }}</span>
+                <span class="font-bold text-black dark:text-white text-sm">{{ p.value }}</span>
+              </div>
+              <div class="h-2 w-full rounded-full bg-gray-100 dark:bg-gray-700">
+                <div class="h-2 rounded-full bg-primary transition-all duration-700"
+                  [style.width.%]="monthlyReport.totalWorkOrders ? (p.value / monthlyReport.totalWorkOrders) * 100 : 0"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tasa de completación -->
+          <div class="mt-6 pt-5 border-t border-stroke dark:border-strokedark">
+            <div class="flex justify-between mb-2">
+              <span class="text-sm text-gray-500">Tasa de Completación</span>
+              <span class="font-bold text-green-600">{{ completionRate }}%</span>
+            </div>
+            <div class="h-3 w-full rounded-full bg-gray-100 dark:bg-gray-700">
+              <div class="h-3 rounded-full bg-green-500 transition-all duration-700" [style.width.%]="completionRate"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top técnicos del mes -->
+        <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <h4 class="mb-5 font-semibold text-black dark:text-white">Top Técnicos del Mes</h4>
+          <div *ngIf="technicianEntries.length === 0" class="text-center py-6 text-sm text-gray-400">Sin datos</div>
+          <div class="space-y-3">
+            <div *ngFor="let t of technicianEntries; let i = index" class="flex items-center gap-3">
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                [class.bg-yellow-100]="i===0" [class.text-yellow-700]="i===0"
+                [class.bg-gray-100]="i!==0"   [class.text-gray-600]="i!==0">
+                {{ i + 1 }}
+              </span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-black dark:text-white truncate">{{ t.key }}</p>
+                <div class="h-1.5 w-full rounded-full bg-gray-100 dark:bg-gray-700 mt-1">
+                  <div class="h-1.5 rounded-full bg-primary"
+                    [style.width.%]="technicianEntries[0]?.value ? (t.value / technicianEntries[0].value) * 100 : 0"></div>
+                </div>
+              </div>
+              <span class="shrink-0 text-sm font-bold text-black dark:text-white">{{ t.value }}</span>
+            </div>
+          </div>
+
+          <!-- Activo más atendido -->
+          <div *ngIf="monthlyReport.mostServicedAssetName" class="mt-6 pt-5 border-t border-stroke dark:border-strokedark">
+            <p class="text-xs text-gray-500 mb-1">Activo más atendido este mes</p>
+            <p class="font-semibold text-black dark:text-white">{{ monthlyReport.mostServicedAssetName }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       TAB 2: PERFORMANCE TÉCNICOS
+  ═══════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab==='technicians'">
+
+    <div class="mb-6 flex justify-end" *ngIf="technicians.length > 0">
+      <button (click)="exportTechsExcel()" [disabled]="exportingTechs"
+        class="inline-flex items-center gap-2 rounded-md border border-green-300 px-4 py-2 text-sm font-medium text-green-700 hover:bg-green-50 dark:border-green-700 dark:hover:bg-green-900/20 disabled:opacity-50 transition-colors">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          <line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/>
+        </svg>
+        {{ exportingTechs ? 'Exportando...' : 'Exportar Excel' }}
+      </button>
+    </div>
+
+    <div *ngIf="loadingTechs" class="flex justify-center py-20">
+      <div class="h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+    </div>
+
+    <div *ngIf="techsError" class="rounded-md border border-red-200 bg-red-50 p-5">
+      <p class="text-red-700">{{ techsError }}</p>
+      <button (click)="loadTechnicians()" class="mt-2 text-sm text-red-600 underline">Reintentar</button>
+    </div>
+
+    <div *ngIf="!loadingTechs && !techsError && technicians.length === 0 && techsLoaded"
+      class="flex flex-col items-center py-20 text-center">
+      <p class="text-4xl mb-4">📉</p>
+      <p class="text-gray-500">No hay datos de técnicos disponibles</p>
+    </div>
+
+    <div *ngIf="!loadingTechs && !techsError && technicians.length > 0"
+      class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark overflow-x-auto">
+      <table class="w-full table-auto">
+        <thead>
+          <tr class="bg-gray-2 dark:bg-meta-4 text-left">
+            <th class="px-5 py-4 text-sm font-semibold text-black dark:text-white">Técnico</th>
+            <th class="px-4 py-4 text-sm font-semibold text-black dark:text-white text-center">Total OTs</th>
+            <th class="px-4 py-4 text-sm font-semibold text-black dark:text-white text-center">Completadas</th>
+            <th class="px-4 py-4 text-sm font-semibold text-black dark:text-white text-center">Abiertas</th>
+            <th class="px-4 py-4 text-sm font-semibold text-black dark:text-white text-center">Vencidas</th>
+            <th class="px-4 py-4 text-sm font-semibold text-black dark:text-white">Tasa Completación</th>
+            <th class="px-4 py-4 text-sm font-semibold text-black dark:text-white hidden lg:table-cell">Tasa A Tiempo</th>
+            <th class="px-4 py-4 text-sm font-semibold text-black dark:text-white hidden md:table-cell">Horas</th>
+            <th class="px-4 py-4 text-sm font-semibold text-black dark:text-white hidden lg:table-cell">Ingresos</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of technicians"
+            class="border-b border-stroke dark:border-strokedark hover:bg-gray-2 dark:hover:bg-meta-4 transition-colors">
+            <td class="px-5 py-4">
+              <p class="font-semibold text-black dark:text-white">{{ t.technicianName }}</p>
+            </td>
+            <td class="px-4 py-4 text-center font-bold text-black dark:text-white">{{ t.totalWorkOrders }}</td>
+            <td class="px-4 py-4 text-center font-bold text-green-600">{{ t.completedWorkOrders }}</td>
+            <td class="px-4 py-4 text-center text-sm text-gray-600 dark:text-gray-400">{{ t.openWorkOrders }}</td>
+            <td class="px-4 py-4 text-center">
+              <span *ngIf="t.overdueWorkOrders > 0" class="font-bold text-red-600">{{ t.overdueWorkOrders }}</span>
+              <span *ngIf="t.overdueWorkOrders === 0" class="text-gray-400">0</span>
+            </td>
+            <!-- Barra tasa completación -->
+            <td class="px-4 py-4 min-w-[140px]">
+              <div class="flex items-center gap-2">
+                <div class="flex-1 h-2 rounded-full bg-gray-100 dark:bg-gray-700">
+                  <div class="h-2 rounded-full transition-all duration-700"
+                    [class]="getRateBarColor(t.completionRate ?? 0)"
+                    [style.width.%]="t.completionRate ?? 0"></div>
+                </div>
+                <span class="text-xs font-bold w-10 text-right" [class.text-green-600]="(t.completionRate??0)>=80" [class.text-yellow-600]="(t.completionRate??0)>=50&&(t.completionRate??0)<80" [class.text-red-600]="(t.completionRate??0)<50">
+                  {{ t.completionRate ? (t.completionRate | number:'1.0-0') : 0 }}%
+                </span>
+              </div>
+            </td>
+            <!-- Tasa a tiempo -->
+            <td class="px-4 py-4 text-center hidden lg:table-cell text-sm">
+              <span [class.text-green-600]="(t.onTimeRate??0)>=80" [class.text-yellow-600]="(t.onTimeRate??0)>=50&&(t.onTimeRate??0)<80" [class.text-red-600]="(t.onTimeRate??0)<50" class="font-medium">
+                {{ t.onTimeRate ? (t.onTimeRate | number:'1.0-0') + '%' : '—' }}
+              </span>
+            </td>
+            <td class="px-4 py-4 text-center hidden md:table-cell text-sm text-black dark:text-white">
+              {{ t.totalHoursWorked ? (t.totalHoursWorked | number:'1.0-1') + ' h' : '—' }}
+            </td>
+            <td class="px-4 py-4 text-center hidden lg:table-cell text-sm font-medium text-black dark:text-white">
+              {{ t.totalRevenue ? '$' + (t.totalRevenue | number:'1.2-2') : '—' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       TAB 3: HISTORIAL DE ACTIVO
+  ═══════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab==='asset'">
+
+    <!-- Selector de activo -->
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
+      <div class="flex-1">
+        <label class="mb-2 block text-sm font-medium text-black dark:text-white">Selecciona un Activo</label>
+        <select [(ngModel)]="selectedAssetId"
+          class="w-full rounded-lg border border-stroke bg-transparent px-4 py-3 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white">
+          <option [ngValue]="null">-- Selecciona un activo --</option>
+          <option *ngFor="let a of assets" [ngValue]="a.id">{{ a.name }} ({{ a.code }})</option>
+        </select>
+      </div>
+      <button (click)="loadHistory()" [disabled]="!selectedAssetId || loadingHistory"
+        class="rounded-md bg-primary px-6 py-3 font-medium text-white hover:bg-opacity-90 disabled:opacity-50">
+        {{ loadingHistory ? 'Cargando...' : 'Ver Historial' }}
+      </button>
+      <button *ngIf="historyLoaded && assetHistory.length > 0" (click)="exportHistoryPdf()" [disabled]="exportingHistory"
+        class="inline-flex items-center gap-2 rounded-md border border-red-300 px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 dark:border-red-700 dark:hover:bg-red-900/20 disabled:opacity-50 transition-colors">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+        </svg>
+        {{ exportingHistory ? 'Exportando...' : 'Exportar PDF' }}
+      </button>
+    </div>
+
+    <div *ngIf="loadingHistory" class="flex justify-center py-20">
+      <div class="h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+    </div>
+
+    <div *ngIf="historyError" class="rounded-md border border-red-200 bg-red-50 p-5">
+      <p class="text-red-700">{{ historyError }}</p>
+    </div>
+
+    <div *ngIf="!loadingHistory && !historyError && historyLoaded && assetHistory.length === 0"
+      class="flex flex-col items-center py-16 text-center">
+      <p class="text-4xl mb-4">📋</p>
+      <p class="text-gray-500">Este activo no tiene historial de mantenimiento</p>
+    </div>
+
+    <!-- Tabla historial -->
+    <div *ngIf="!loadingHistory && !historyError && assetHistory.length > 0">
+      <div class="mb-4">
+        <h4 class="font-semibold text-black dark:text-white">
+          Historial de Mantenimiento — {{ selectedAssetName }}
+        </h4>
+        <p class="text-sm text-gray-500">{{ assetHistory.length }} registro(s)</p>
+      </div>
+
+      <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark overflow-x-auto">
+        <table class="w-full table-auto">
+          <thead>
+            <tr class="bg-gray-2 dark:bg-meta-4 text-left">
+              <th class="px-5 py-4 text-sm font-semibold text-black dark:text-white">Código / Título</th>
+              <th class="px-4 py-4 text-sm font-semibold text-black dark:text-white">Estado</th>
+              <th class="px-4 py-4 text-sm font-semibold text-black dark:text-white hidden sm:table-cell">Técnico</th>
+              <th class="px-4 py-4 text-sm font-semibold text-black dark:text-white hidden md:table-cell">Completada</th>
+              <th class="px-4 py-4 text-sm font-semibold text-black dark:text-white text-right hidden md:table-cell">Horas</th>
+              <th class="px-4 py-4 text-sm font-semibold text-black dark:text-white text-right hidden lg:table-cell">Costo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let h of assetHistory"
+              class="border-b border-stroke dark:border-strokedark hover:bg-gray-2 dark:hover:bg-meta-4 transition-colors">
+              <td class="px-5 py-4">
+                <p class="font-mono text-xs text-gray-400 mb-0.5">{{ h.workOrderCode }}</p>
+                <p class="font-medium text-black dark:text-white text-sm">{{ h.title }}</p>
+                <p *ngIf="h.description" class="text-xs text-gray-400 mt-0.5 truncate max-w-xs">{{ h.description }}</p>
+              </td>
+              <td class="px-4 py-4">
+                <span [class]="getStatusBadge(h.status)"
+                  class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold">
+                  {{ getStatusLabel(h.status) }}
+                </span>
+              </td>
+              <td class="px-4 py-4 hidden sm:table-cell text-sm text-gray-600 dark:text-gray-400">
+                {{ h.technicianName || '—' }}
+              </td>
+              <td class="px-4 py-4 hidden md:table-cell text-sm text-gray-500">
+                {{ h.completedAt ? (h.completedAt | date:'dd/MM/yyyy') : '—' }}
+              </td>
+              <td class="px-4 py-4 hidden md:table-cell text-right text-sm font-medium text-black dark:text-white">
+                {{ h.actualHours ? (h.actualHours | number:'1.0-1') + ' h' : '—' }}
+              </td>
+              <td class="px-4 py-4 hidden lg:table-cell text-right text-sm font-medium text-black dark:text-white">
+                {{ h.cost ? '$' + (h.cost | number:'1.2-2') : '—' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Placeholder inicial -->
+    <div *ngIf="!historyLoaded && !loadingHistory"
+      class="flex flex-col items-center justify-center rounded-sm border border-dashed border-stroke py-20 dark:border-strokedark">
+      <p class="text-5xl mb-4">🔍</p>
+      <p class="text-gray-500">Selecciona un activo para ver su historial de mantenimiento</p>
+    </div>
+  </div>
+
+</div>
