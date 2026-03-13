@@ -1,0 +1,153 @@
+<div><app-page-breadcrumb pageTitle="Detalle de Activo" /></div>
+
+<div class="mx-auto max-w-screen-xl p-4 md:p-6 2xl:p-10">
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="flex items-center justify-center py-20">
+    <div class="h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !loading" class="rounded-md bg-red-50 border border-red-200 p-6 text-center">
+    <p class="text-red-700 mb-3">{{ error }}</p>
+    <button (click)="navigateBack()" class="text-primary underline">Volver</button>
+  </div>
+
+  <div *ngIf="!loading && !error && asset">
+
+    <!-- Top bar -->
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex items-center gap-3">
+        <button (click)="navigateBack()" class="text-sm text-gray-500 hover:text-primary transition-colors">← Volver</button>
+        <span class="font-mono text-lg font-bold text-primary">{{ asset.code }}</span>
+        <span [class.bg-green-100]="asset.isActive" [class.text-green-700]="asset.isActive"
+              [class.bg-red-100]="!asset.isActive" [class.text-red-700]="!asset.isActive"
+          class="inline-flex rounded-full px-3 py-1 text-xs font-semibold">
+          {{ asset.isActive ? 'Activo' : 'Inactivo' }}
+        </span>
+      </div>
+      <div class="flex gap-2">
+        <button (click)="navigateToWO()"
+          class="rounded-md border border-stroke px-4 py-2 text-sm font-medium text-black hover:bg-gray-2 dark:border-strokedark dark:text-white dark:hover:bg-meta-4">
+          Ver OTs
+        </button>
+        <button (click)="navigateToEdit()"
+          class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90">
+          Editar
+        </button>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
+
+      <!-- Left: info principal -->
+      <div class="lg:col-span-2 space-y-5">
+
+        <!-- Identificación -->
+        <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <h3 class="mb-5 text-lg font-semibold text-black dark:text-white">{{ asset.name }}</h3>
+          <p class="text-gray-600 dark:text-gray-400 mb-5 leading-relaxed">
+            {{ asset.description || 'Sin descripción.' }}
+          </p>
+          <div class="grid grid-cols-2 gap-5 sm:grid-cols-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Código</p>
+              <p class="font-mono font-semibold text-black dark:text-white">{{ asset.code }}</p>
+            </div>
+            <div *ngIf="asset.serialNumber">
+              <p class="text-xs text-gray-500 mb-1">Número de Serie</p>
+              <p class="font-mono text-sm text-black dark:text-white">{{ asset.serialNumber }}</p>
+            </div>
+            <div *ngIf="asset.categoryName">
+              <p class="text-xs text-gray-500 mb-1">Categoría</p>
+              <span class="inline-flex rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                {{ asset.categoryName }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Técnico / Equipamiento -->
+        <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <h4 class="mb-4 font-semibold text-black dark:text-white">Información Técnica</h4>
+          <div class="grid grid-cols-2 gap-5">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Fabricante</p>
+              <p class="text-black dark:text-white">{{ asset.manufacturer || '—' }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Modelo</p>
+              <p class="text-black dark:text-white">{{ asset.model || '—' }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Fecha de instalación</p>
+              <p class="text-black dark:text-white">{{ asset.installedAt ? (asset.installedAt | date:'dd/MM/yyyy') : '—' }}</p>
+            </div>
+            <div *ngIf="asset.lastMaintenanceDate">
+              <p class="text-xs text-gray-500 mb-1">Último mantenimiento</p>
+              <p class="text-black dark:text-white">{{ asset.lastMaintenanceDate | date:'dd/MM/yyyy HH:mm' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Métricas OTs -->
+        <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark"
+          *ngIf="asset.totalWorkOrders != null">
+          <h4 class="mb-4 font-semibold text-black dark:text-white">Historial de Mantenimiento</h4>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="rounded-lg bg-gray-50 dark:bg-gray-800/40 p-4 text-center">
+              <p class="text-3xl font-bold text-black dark:text-white">{{ asset.totalWorkOrders }}</p>
+              <p class="text-sm text-gray-500 mt-1">OTs totales</p>
+            </div>
+            <div class="rounded-lg p-4 text-center"
+              [class.bg-orange-50]="(asset.openWorkOrders ?? 0) > 0"
+              [class.bg-gray-50]="(asset.openWorkOrders ?? 0) === 0"
+              [class.dark:bg-orange-900/20]="(asset.openWorkOrders ?? 0) > 0"
+              [class.dark:bg-gray-800/40]="(asset.openWorkOrders ?? 0) === 0">
+              <p class="text-3xl font-bold"
+                [class.text-orange-600]="(asset.openWorkOrders ?? 0) > 0"
+                [class.text-black]="(asset.openWorkOrders ?? 0) === 0"
+                [class.dark:text-white]="(asset.openWorkOrders ?? 0) === 0">
+                {{ asset.openWorkOrders ?? 0 }}
+              </p>
+              <p class="text-sm text-gray-500 mt-1">OTs abiertas</p>
+            </div>
+          </div>
+          <button (click)="navigateToWO()"
+            class="mt-4 w-full rounded-lg border border-primary py-2 text-sm font-medium text-primary hover:bg-primary hover:text-white transition-colors">
+            Ver todas las OTs de este activo
+          </button>
+        </div>
+      </div>
+
+      <!-- Right: sidebar -->
+      <div class="space-y-5">
+
+        <!-- Ubicación -->
+        <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <h4 class="mb-4 font-semibold text-black dark:text-white">Ubicación</h4>
+          <div class="space-y-3">
+            <div *ngIf="asset.companyName">
+              <p class="text-xs text-gray-500">Empresa</p>
+              <p class="font-medium text-black dark:text-white">{{ asset.companyName }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">Sitio</p>
+              <p class="font-medium text-black dark:text-white">{{ asset.siteName || '—' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Auditoría -->
+        <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Auditoría</h4>
+          <div class="space-y-2 text-xs text-gray-500 dark:text-gray-400">
+            <p>Creado: {{ asset.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+            <p>Actualizado: {{ asset.updatedAt | date:'dd/MM/yyyy HH:mm' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-assets',
-  imports: [],
-  templateUrl: './assets.component.html',
-  styleUrl: './assets.component.css',
+  standalone: true,
+  imports: [RouterOutlet],
+  template: '<router-outlet />'
 })
-export class AssetsComponent {
-
-}
+export class AssetsComponent {}

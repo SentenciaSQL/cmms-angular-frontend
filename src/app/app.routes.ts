@@ -42,7 +42,7 @@ export const routes: Routes = [
       },
       {
         path: 'assets',
-        loadComponent: () => import('./features/assets/assets.component').then(m => m.AssetsComponent)
+        loadChildren: () => import('./features/assets/assets.routes').then(m => m.ASSETS_ROUTES)
       },
       {
         path: 'maintenance-plans',

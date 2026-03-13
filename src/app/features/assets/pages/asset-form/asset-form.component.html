@@ -1,0 +1,150 @@
+<div><app-page-breadcrumb [pageTitle]="isEditMode ? 'Editar Activo' : 'Nuevo Activo'" /></div>
+
+<div class="mx-auto max-w-screen-xl p-4 md:p-6 2xl:p-10">
+
+  <div *ngIf="loadingData" class="flex items-center justify-center py-20">
+    <div class="h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+  </div>
+
+  <div *ngIf="!loadingData">
+    <div class="mb-6 flex items-center gap-4">
+      <button (click)="onCancel()" class="text-sm text-gray-500 hover:text-primary transition-colors">← Volver</button>
+      <h2 class="text-2xl font-bold text-black dark:text-white">
+        {{ isEditMode ? 'Editar Activo' : 'Nuevo Activo' }}
+      </h2>
+    </div>
+
+    <div *ngIf="error" class="mb-5 rounded-md border border-red-200 bg-red-50 p-4 text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+      {{ error }}
+    </div>
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
+
+        <!-- LEFT: campos principales -->
+        <div class="lg:col-span-2 space-y-5">
+
+          <!-- Identificación -->
+          <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <h3 class="mb-5 font-semibold text-black dark:text-white">Identificación</h3>
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+
+              <div>
+                <label class="mb-2 block text-sm font-medium text-black dark:text-white">
+                  Nombre <span class="text-red-500">*</span>
+                </label>
+                <input type="text" [(ngModel)]="form.name" name="name" required
+                  placeholder="Nombre descriptivo del activo"
+                  class="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+              </div>
+
+              <div>
+                <label class="mb-2 block text-sm font-medium text-black dark:text-white">
+                  Código <span class="text-red-500">*</span>
+                </label>
+                <input type="text" [(ngModel)]="form.code" name="code" required
+                  placeholder="Ej: ACT-001"
+                  class="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+              </div>
+
+              <div class="sm:col-span-2">
+                <label class="mb-2 block text-sm font-medium text-black dark:text-white">Descripción</label>
+                <textarea [(ngModel)]="form.description" name="description" rows="3"
+                  placeholder="Descripción del activo..."
+                  class="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white resize-none"></textarea>
+              </div>
+
+              <div>
+                <label class="mb-2 block text-sm font-medium text-black dark:text-white">Número de Serie</label>
+                <input type="text" [(ngModel)]="form.serialNumber" name="serialNumber"
+                  placeholder="S/N del activo"
+                  class="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+              </div>
+
+              <div>
+                <label class="mb-2 block text-sm font-medium text-black dark:text-white">Fecha de Instalación</label>
+                <input type="date" [(ngModel)]="form.installedAt" name="installedAt"
+                  class="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Fabricante -->
+          <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <h3 class="mb-5 font-semibold text-black dark:text-white">Fabricante y Modelo</h3>
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div>
+                <label class="mb-2 block text-sm font-medium text-black dark:text-white">Fabricante</label>
+                <input type="text" [(ngModel)]="form.manufacturer" name="manufacturer"
+                  placeholder="Ej: Siemens, ABB, Caterpillar..."
+                  class="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-medium text-black dark:text-white">Modelo</label>
+                <input type="text" [(ngModel)]="form.model" name="model"
+                  placeholder="Modelo del equipo"
+                  class="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: asignación y estado -->
+        <div class="space-y-5">
+
+          <!-- Asignación -->
+          <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <h3 class="mb-5 font-semibold text-black dark:text-white">Asignación</h3>
+
+            <div class="mb-4">
+              <label class="mb-2 block text-sm font-medium text-black dark:text-white">
+                ID de Sitio <span class="text-red-500">*</span>
+              </label>
+              <input type="number" [(ngModel)]="form.siteId" name="siteId" required min="1"
+                placeholder="ID del sitio"
+                class="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-medium text-black dark:text-white">ID de Categoría</label>
+              <input type="number" [(ngModel)]="form.categoryId" name="categoryId" min="1"
+                placeholder="ID de categoría (opcional)"
+                class="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+            </div>
+          </div>
+
+          <!-- Estado -->
+          <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <h3 class="mb-4 font-semibold text-black dark:text-white">Estado</h3>
+            <label class="flex cursor-pointer items-center gap-3">
+              <div class="relative">
+                <input type="checkbox" [(ngModel)]="form.isActive" name="isActive" class="sr-only" />
+                <div class="h-5 w-9 rounded-full transition"
+                  [class.bg-primary]="form.isActive" [class.bg-gray-300]="!form.isActive">
+                  <div class="absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform"
+                    [style.transform]="form.isActive ? 'translateX(1rem)' : 'translateX(0.125rem)'"></div>
+                </div>
+              </div>
+              <span class="text-sm font-medium text-black dark:text-white">
+                {{ form.isActive ? 'Activo' : 'Inactivo' }}
+              </span>
+            </label>
+          </div>
+
+          <!-- Acciones -->
+          <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <button type="submit" [disabled]="loading"
+              class="w-full rounded-md bg-primary py-3 font-medium text-white hover:bg-opacity-90 disabled:opacity-60 mb-3">
+              <span *ngIf="loading">Guardando...</span>
+              <span *ngIf="!loading">{{ isEditMode ? 'Guardar Cambios' : 'Crear Activo' }}</span>
+            </button>
+            <button type="button" (click)="onCancel()" [disabled]="loading"
+              class="w-full rounded-md border border-stroke py-3 font-medium text-black hover:bg-gray-2 dark:border-strokedark dark:text-white dark:hover:bg-meta-4 disabled:opacity-60">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
