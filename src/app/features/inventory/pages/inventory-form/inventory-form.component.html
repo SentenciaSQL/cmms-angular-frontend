@@ -1,0 +1,156 @@
+<div><app-page-breadcrumb [pageTitle]="isEditMode ? 'Editar Ítem' : 'Nuevo Ítem'" /></div>
+
+<div class="mx-auto max-w-screen-lg p-4 md:p-6 2xl:p-10">
+
+  <div *ngIf="loadingData" class="flex justify-center py-20">
+    <div class="h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+  </div>
+
+  <div *ngIf="!loadingData">
+    <div class="mb-6 flex items-center gap-4">
+      <button (click)="onCancel()" class="text-sm text-gray-500 hover:text-primary">← Volver</button>
+      <h2 class="text-2xl font-bold text-black dark:text-white">
+        {{ isEditMode ? 'Editar Ítem de Inventario' : 'Nuevo Ítem de Inventario' }}
+      </h2>
+    </div>
+
+    <div *ngIf="error" class="mb-5 rounded-md border border-red-200 bg-red-50 p-4 text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+      {{ error }}
+    </div>
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
+
+        <!-- LEFT: 2 cols -->
+        <div class="lg:col-span-2 space-y-5">
+
+          <!-- Identificación -->
+          <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <h3 class="mb-5 font-semibold text-black dark:text-white">Identificación</h3>
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div>
+                <label class="mb-2 block text-sm font-medium text-black dark:text-white">Código <span class="text-red-500">*</span></label>
+                <input type="text" [(ngModel)]="form.code" name="code" required
+                  placeholder="Ej: REP-001, TOOL-045"
+                  class="w-full rounded-lg border border-stroke px-4 py-3 font-mono outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-medium text-black dark:text-white">Nombre <span class="text-red-500">*</span></label>
+                <input type="text" [(ngModel)]="form.name" name="name" required
+                  placeholder="Nombre descriptivo del ítem"
+                  class="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-medium text-black dark:text-white">Fabricante</label>
+                <input type="text" [(ngModel)]="form.manufacturer" name="manufacturer"
+                  placeholder="Marca o fabricante"
+                  class="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-medium text-black dark:text-white">Número de Parte</label>
+                <input type="text" [(ngModel)]="form.partNumber" name="partNumber"
+                  placeholder="PN del fabricante"
+                  class="w-full rounded-lg border border-stroke px-4 py-3 font-mono outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+              </div>
+            </div>
+            <div class="mt-5">
+              <label class="mb-2 block text-sm font-medium text-black dark:text-white">Descripción</label>
+              <textarea [(ngModel)]="form.description" name="description" rows="2"
+                placeholder="Descripción técnica, especificaciones, uso..."
+                class="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white resize-none"></textarea>
+            </div>
+          </div>
+
+          <!-- Stock y umbrales -->
+          <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <h3 class="mb-5 font-semibold text-black dark:text-white">Stock y Umbrales</h3>
+            <div class="grid grid-cols-2 gap-5 sm:grid-cols-4">
+              <div>
+                <label class="mb-2 block text-sm font-medium text-black dark:text-white">Stock Actual <span class="text-red-500">*</span></label>
+                <input type="number" [(ngModel)]="form.currentStock" name="currentStock" min="0" required
+                  class="w-full rounded-lg border border-stroke px-4 py-3 text-center outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-medium text-black dark:text-white">Stock Mínimo <span class="text-red-500">*</span></label>
+                <input type="number" [(ngModel)]="form.minStock" name="minStock" min="0" required
+                  class="w-full rounded-lg border border-stroke px-4 py-3 text-center outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-medium text-black dark:text-white">Punto Reorden <span class="text-red-500">*</span></label>
+                <input type="number" [(ngModel)]="form.reorderPoint" name="reorderPoint" min="0" required
+                  class="w-full rounded-lg border border-stroke px-4 py-3 text-center outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-medium text-black dark:text-white">Stock Máximo <span class="text-red-500">*</span></label>
+                <input type="number" [(ngModel)]="form.maxStock" name="maxStock" min="1" required
+                  class="w-full rounded-lg border border-stroke px-4 py-3 text-center outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+              </div>
+            </div>
+            <p class="mt-3 text-xs text-gray-400">
+              Min → Punto de reorden → Máx. El sistema alertará cuando el stock caiga por debajo del mínimo.
+            </p>
+          </div>
+
+          <!-- Info adicional -->
+          <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <h3 class="mb-5 font-semibold text-black dark:text-white">Información Adicional</h3>
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+              <div>
+                <label class="mb-2 block text-sm font-medium text-black dark:text-white">Unidad <span class="text-red-500">*</span></label>
+                <input type="text" [(ngModel)]="form.unit" name="unit" required
+                  placeholder="unidad, litro, kg..."
+                  class="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-medium text-black dark:text-white">Costo Unitario (USD)</label>
+                <input type="number" [(ngModel)]="form.unitCost" name="unitCost" min="0" step="0.01"
+                  placeholder="0.00"
+                  class="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-medium text-black dark:text-white">Ubicación</label>
+                <input type="text" [(ngModel)]="form.location" name="location"
+                  placeholder="Estante A-3, Almacén 2..."
+                  class="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="space-y-5">
+
+          <!-- Tipo de ítem -->
+          <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <h3 class="mb-4 font-semibold text-black dark:text-white">Tipo de Ítem</h3>
+            <div class="flex flex-col gap-2">
+              <label *ngFor="let t of itemTypes"
+                class="flex items-center gap-3 cursor-pointer rounded-lg border p-3 transition-colors"
+                [class.border-primary]="form.itemType === t.value"
+                [class.bg-blue-50]="form.itemType === t.value"
+                [class.dark:bg-blue-900/20]="form.itemType === t.value"
+                [class.border-stroke]="form.itemType !== t.value"
+                [class.dark:border-strokedark]="form.itemType !== t.value">
+                <input type="radio" [(ngModel)]="form.itemType" name="itemType" [value]="t.value" class="accent-primary" />
+                <span class="text-lg">{{ t.icon }}</span>
+                <span class="text-sm font-medium text-black dark:text-white">{{ t.label }}</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <button type="submit" [disabled]="loading"
+              class="w-full rounded-md bg-primary py-3 font-medium text-white hover:bg-opacity-90 disabled:opacity-60 mb-3">
+              {{ loading ? 'Guardando...' : (isEditMode ? 'Guardar Cambios' : 'Crear Ítem') }}
+            </button>
+            <button type="button" (click)="onCancel()" [disabled]="loading"
+              class="w-full rounded-md border border-stroke py-3 font-medium text-black hover:bg-gray-2 dark:border-strokedark dark:text-white dark:hover:bg-meta-4 disabled:opacity-60">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

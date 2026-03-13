@@ -1,0 +1,258 @@
+<div><app-page-breadcrumb pageTitle="Detalle de Ítem" /></div>
+
+<div class="mx-auto max-w-screen-xl p-4 md:p-6 2xl:p-10">
+
+  <div *ngIf="loading" class="flex justify-center py-20">
+    <div class="h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+  </div>
+
+  <div *ngIf="error && !loading" class="rounded-md bg-red-50 border border-red-200 p-6 text-center">
+    <p class="text-red-700 mb-3">{{ error }}</p>
+    <button (click)="navigateBack()" class="text-primary underline">Volver</button>
+  </div>
+
+  <div *ngIf="!loading && !error && item">
+
+    <!-- Top bar -->
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex items-center gap-3 flex-wrap">
+        <button (click)="navigateBack()" class="text-sm text-gray-500 hover:text-primary">← Volver</button>
+        <span [class]="getTypeBadge()" class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium">
+          {{ getTypeIcon() }} {{ getTypeLabel() }}
+        </span>
+        <span *ngIf="item.isLowStock" class="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+          ⚠ Stock Bajo
+        </span>
+        <span *ngIf="!item.isLowStock && item.needsReorder" class="inline-flex rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
+          ↺ Punto de Reorden
+        </span>
+      </div>
+      <div class="flex gap-2">
+        <button (click)="openMovementModal()"
+          class="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
+          + Movimiento
+        </button>
+        <button (click)="navigateToEdit()"
+          class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90">
+          Editar
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
+
+      <!-- LEFT -->
+      <div class="space-y-5">
+
+        <!-- Stock card -->
+        <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark text-center"
+          [class.border-red-300]="item.isLowStock" [class.dark:border-red-700]="item.isLowStock">
+          <p class="text-5xl mb-3">{{ getTypeIcon() }}</p>
+          <h3 class="text-xl font-bold text-black dark:text-white mb-1">{{ item.name }}</h3>
+          <p class="font-mono text-sm text-gray-400 mb-4">{{ item.code }}</p>
+
+          <div class="mb-2 flex items-end justify-center gap-1">
+            <span class="text-4xl font-bold" [class.text-red-600]="item.isLowStock" [class.text-black]="!item.isLowStock" [class.dark:text-white]="!item.isLowStock">
+              {{ item.currentStock }}
+            </span>
+            <span class="mb-1 text-gray-400 text-sm">{{ item.unit }}</span>
+          </div>
+
+          <div class="mb-3 h-3 w-full rounded-full bg-gray-100 dark:bg-gray-700">
+            <div class="h-3 rounded-full transition-all duration-700" [class]="getStockBarColor()" [style.width.%]="getStockPercent()"></div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 text-center text-xs text-gray-500">
+            <div><p class="font-bold text-black dark:text-white text-sm">{{ item.minStock }}</p><p>Mín</p></div>
+            <div><p class="font-bold text-black dark:text-white text-sm">{{ item.reorderPoint }}</p><p>Reorden</p></div>
+            <div><p class="font-bold text-black dark:text-white text-sm">{{ item.maxStock }}</p><p>Máx</p></div>
+          </div>
+        </div>
+
+        <!-- Info económica -->
+        <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <h4 class="mb-4 font-semibold text-black dark:text-white">Información Económica</h4>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-500">Costo unitario</span>
+              <span class="font-bold text-black dark:text-white">{{ item.unitCost ? '$' + item.unitCost : '—' }}</span>
+            </div>
+            <div class="flex justify-between" *ngIf="item.unitCost">
+              <span class="text-sm text-gray-500">Valor en stock</span>
+              <span class="font-bold text-green-600">${{ (item.unitCost * item.currentStock) | number:'1.2-2' }}</span>
+            </div>
+            <div class="flex justify-between" *ngIf="item.supplier">
+              <span class="text-sm text-gray-500">Proveedor</span>
+              <span class="text-sm text-black dark:text-white">{{ item.supplier.name }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="lg:col-span-2 space-y-5">
+
+        <!-- Detalles técnicos -->
+        <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <h4 class="mb-5 font-semibold text-black dark:text-white">Información Técnica</h4>
+          <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div *ngIf="item.manufacturer">
+              <p class="text-xs text-gray-500 mb-1">Fabricante</p>
+              <p class="font-medium text-black dark:text-white">{{ item.manufacturer }}</p>
+            </div>
+            <div *ngIf="item.partNumber">
+              <p class="text-xs text-gray-500 mb-1">Número de Parte</p>
+              <p class="font-mono text-sm text-black dark:text-white">{{ item.partNumber }}</p>
+            </div>
+            <div *ngIf="item.location">
+              <p class="text-xs text-gray-500 mb-1">Ubicación</p>
+              <p class="font-medium text-black dark:text-white">{{ item.location }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Unidad de medida</p>
+              <p class="font-medium text-black dark:text-white">{{ item.unit }}</p>
+            </div>
+          </div>
+          <div class="mt-4" *ngIf="item.description">
+            <p class="text-xs text-gray-500 mb-2">Descripción</p>
+            <p class="rounded-lg bg-gray-50 dark:bg-gray-800/40 p-4 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+              {{ item.description }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Historial de movimientos -->
+        <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+          <div class="px-6 py-4 border-b border-stroke dark:border-strokedark flex items-center justify-between">
+            <h4 class="font-semibold text-black dark:text-white">Últimos Movimientos</h4>
+            <button (click)="openMovementModal()"
+              class="text-sm text-primary hover:underline">+ Registrar</button>
+          </div>
+
+          <div *ngIf="loadingMovements" class="flex justify-center py-8">
+            <div class="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+          </div>
+
+          <div *ngIf="!loadingMovements && movements.length === 0"
+            class="px-6 py-8 text-center text-sm text-gray-400">
+            Sin movimientos registrados
+          </div>
+
+          <div *ngIf="!loadingMovements && movements.length > 0">
+            <div *ngFor="let mv of movements; let last = last"
+              class="flex items-center gap-4 px-6 py-4"
+              [class.border-b]="!last" [class.border-stroke]="!last" [class.dark:border-strokedark]="!last">
+
+              <!-- Tipo -->
+              <span [class]="getMovementBadge(mv.movementType)"
+                class="inline-flex w-20 shrink-0 justify-center rounded-full px-2 py-0.5 text-xs font-semibold">
+                {{ getMovementLabel(mv.movementType) }}
+              </span>
+
+              <!-- Stock delta -->
+              <div class="w-16 shrink-0 text-right">
+                <span class="font-bold text-sm"
+                  [class.text-green-600]="mv.movementType === 'IN'"
+                  [class.text-red-600]="mv.movementType === 'OUT'"
+                  [class.text-blue-600]="mv.movementType === 'ADJUSTMENT' || mv.movementType === 'TRANSFER'">
+                  {{ getMovementSign(mv.movementType) }}{{ mv.quantity }}
+                </span>
+              </div>
+
+              <!-- Stock anterior → nuevo -->
+              <div class="flex-1 text-xs text-gray-400">
+                <span>{{ mv.previousStock }} → <strong class="text-black dark:text-white">{{ mv.newStock }}</strong></span>
+                <p *ngIf="mv.notes" class="mt-0.5 truncate">{{ mv.notes }}</p>
+              </div>
+
+              <!-- Usuario + fecha -->
+              <div class="shrink-0 text-right text-xs text-gray-400">
+                <p *ngIf="mv.user">{{ mv.user.firstName }} {{ mv.user.lastName }}</p>
+                <p>{{ mv.movementDate | date:'dd/MM/yy HH:mm' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Auditoría -->
+        <div class="rounded-sm border border-stroke bg-white p-5 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <div class="grid grid-cols-2 gap-3 text-xs text-gray-400">
+            <p>Creado: {{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+            <p>Actualizado: {{ item.updatedAt | date:'dd/MM/yyyy HH:mm' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal movimiento -->
+<div *ngIf="showMovementModal"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+  (click)="closeModal()">
+  <div class="w-full max-w-md rounded-sm border border-stroke bg-white p-6 shadow-xl dark:border-strokedark dark:bg-boxdark"
+    (click)="$event.stopPropagation()">
+
+    <div class="mb-5 flex items-center justify-between">
+      <h3 class="text-lg font-bold text-black dark:text-white">Registrar Movimiento</h3>
+      <button (click)="closeModal()" class="text-gray-400 hover:text-black dark:hover:text-white text-xl leading-none">✕</button>
+    </div>
+
+    <div *ngIf="movementError" class="mb-4 rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+      {{ movementError }}
+    </div>
+
+    <div class="space-y-4">
+      <!-- Tipo -->
+      <div>
+        <label class="mb-2 block text-sm font-medium text-black dark:text-white">Tipo de Movimiento</label>
+        <div class="grid grid-cols-2 gap-2">
+          <label *ngFor="let mt of movementTypes"
+            class="flex items-center gap-2 cursor-pointer rounded-lg border p-3 transition-colors"
+            [class.border-primary]="movementForm.movementType === mt.value"
+            [class.bg-blue-50]="movementForm.movementType === mt.value"
+            [class.dark:bg-blue-900/20]="movementForm.movementType === mt.value"
+            [class.border-stroke]="movementForm.movementType !== mt.value"
+            [class.dark:border-strokedark]="movementForm.movementType !== mt.value">
+            <input type="radio" [(ngModel)]="movementForm.movementType" name="mvType" [value]="mt.value" class="accent-primary" />
+            <span class="text-sm font-medium text-black dark:text-white">{{ mt.label }}</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Cantidad -->
+      <div>
+        <label class="mb-2 block text-sm font-medium text-black dark:text-white">Cantidad *</label>
+        <input type="number" [(ngModel)]="movementForm.quantity" name="mvQty" min="1"
+          class="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+      </div>
+
+      <!-- Referencia -->
+      <div>
+        <label class="mb-2 block text-sm font-medium text-black dark:text-white">Número de Referencia</label>
+        <input type="text" [(ngModel)]="movementForm.referenceNumber" name="mvRef"
+          placeholder="OC-001, REQ-045..."
+          class="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+      </div>
+
+      <!-- Notas -->
+      <div>
+        <label class="mb-2 block text-sm font-medium text-black dark:text-white">Notas</label>
+        <textarea [(ngModel)]="movementForm.notes" name="mvNotes" rows="2"
+          placeholder="Motivo del movimiento..."
+          class="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white resize-none"></textarea>
+      </div>
+    </div>
+
+    <div class="mt-6 flex gap-3">
+      <button (click)="saveMovement()" [disabled]="savingMovement"
+        class="flex-1 rounded-md bg-primary py-3 font-medium text-white hover:bg-opacity-90 disabled:opacity-60">
+        {{ savingMovement ? 'Guardando...' : 'Registrar' }}
+      </button>
+      <button (click)="closeModal()" [disabled]="savingMovement"
+        class="flex-1 rounded-md border border-stroke py-3 font-medium text-black dark:border-strokedark dark:text-white hover:bg-gray-2 dark:hover:bg-meta-4">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>
