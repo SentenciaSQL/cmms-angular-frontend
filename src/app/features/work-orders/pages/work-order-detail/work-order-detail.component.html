@@ -1,0 +1,230 @@
+<div><app-page-breadcrumb pageTitle="Detalle de Orden de Trabajo" /></div>
+
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="flex items-center justify-center py-20">
+    <div class="h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !loading" class="rounded-md bg-red-50 border border-red-200 p-6 text-center">
+    <p class="text-red-700 mb-3">{{ error }}</p>
+    <button (click)="navigateBack()" class="text-primary underline">Volver a la lista</button>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!loading && !error && workOrder">
+
+    <!-- Top bar -->
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex items-center gap-3">
+        <button (click)="navigateBack()"
+          class="flex items-center gap-1 text-sm text-gray-500 hover:text-primary transition-colors">
+          ← Volver
+        </button>
+        <span class="font-mono text-lg font-bold text-primary">{{ workOrder.code }}</span>
+        <span [class]="getStatusClass(workOrder.status)"
+          class="inline-flex rounded-full px-3 py-1 text-xs font-semibold">
+          {{ getStatusLabel(workOrder.status) }}
+        </span>
+        <span [class]="getPriorityClass(workOrder.priority)"
+          class="inline-flex rounded-full px-3 py-1 text-xs font-semibold">
+          {{ getPriorityLabel(workOrder.priority) }}
+        </span>
+      </div>
+      <div class="flex items-center gap-2">
+        <!-- Status transitions -->
+        <button *ngFor="let t of getAvailableTransitions()"
+          (click)="openStatusModal(t)"
+          [class]="getTransitionClass(t)"
+          class="rounded-md px-4 py-2 text-sm font-medium transition-colors">
+          {{ getTransitionLabel(t) }}
+        </button>
+        <!-- Edit -->
+        <button (click)="navigateToEdit()"
+          *ngIf="workOrder.status !== 'COMPLETED' && workOrder.status !== 'CANCELLED'"
+          class="rounded-md border border-stroke px-4 py-2 text-sm font-medium text-black hover:bg-gray-2 dark:border-strokedark dark:text-white dark:hover:bg-meta-4">
+          Editar
+        </button>
+      </div>
+    </div>
+
+    <!-- Main grid -->
+    <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
+
+      <!-- Left: main info (2 cols) -->
+      <div class="lg:col-span-2 space-y-5">
+
+        <!-- Descripción -->
+        <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <h3 class="mb-4 text-lg font-semibold text-black dark:text-white">{{ workOrder.title }}</h3>
+          <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+            {{ workOrder.description || 'Sin descripción.' }}
+          </p>
+          <p *ngIf="workOrder.notes" class="mt-4 rounded-md bg-yellow-50 border border-yellow-200 p-3 text-sm text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300">
+            📝 {{ workOrder.notes }}
+          </p>
+        </div>
+
+        <!-- Detalles técnicos -->
+        <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <h4 class="mb-4 font-semibold text-black dark:text-white">Detalles</h4>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Activo</p>
+              <p class="font-medium text-black dark:text-white">{{ workOrder.assetName || '—' }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Sitio</p>
+              <p class="font-medium text-black dark:text-white">{{ workOrder.siteName || '—' }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Empresa</p>
+              <p class="font-medium text-black dark:text-white">{{ workOrder.companyName || '—' }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Solicitante</p>
+              <p class="font-medium text-black dark:text-white">{{ workOrder.requesterName || '—' }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Horas estimadas</p>
+              <p class="font-medium text-black dark:text-white">{{ workOrder.estimatedHours ? workOrder.estimatedHours + ' hrs' : '—' }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Horas reales</p>
+              <p class="font-medium text-black dark:text-white">{{ workOrder.actualHours ? workOrder.actualHours + ' hrs' : '—' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeline de fechas -->
+        <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <h4 class="mb-4 font-semibold text-black dark:text-white">Línea de Tiempo</h4>
+          <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Creada</p>
+              <p class="text-sm font-medium text-black dark:text-white">{{ workOrder.createdAt | date:'dd/MM/yyyy' }}</p>
+              <p class="text-xs text-gray-400">{{ workOrder.createdAt | date:'HH:mm' }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Fecha límite</p>
+              <p class="text-sm font-medium" [class.text-red-600]="workOrder.dueDate && workOrder.status !== 'COMPLETED'"
+                 [class.text-black]="!workOrder.dueDate || workOrder.status === 'COMPLETED'"
+                 [class.dark:text-white]="!workOrder.dueDate || workOrder.status === 'COMPLETED'">
+                {{ workOrder.dueDate ? (workOrder.dueDate | date:'dd/MM/yyyy') : '—' }}
+              </p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Iniciada</p>
+              <p class="text-sm font-medium text-black dark:text-white">
+                {{ workOrder.startedAt ? (workOrder.startedAt | date:'dd/MM/yyyy HH:mm') : '—' }}
+              </p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Completada</p>
+              <p class="text-sm font-medium text-green-600 dark:text-green-400">
+                {{ workOrder.completedAt ? (workOrder.completedAt | date:'dd/MM/yyyy HH:mm') : '—' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: sidebar -->
+      <div class="space-y-5">
+
+        <!-- Técnico asignado -->
+        <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <h4 class="mb-4 font-semibold text-black dark:text-white">Técnico Asignado</h4>
+          <div *ngIf="workOrder.technicianName; else noTech">
+            <div class="flex items-center gap-3">
+              <div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white font-semibold text-sm">
+                {{ workOrder.technicianName.charAt(0) }}
+              </div>
+              <p class="font-medium text-black dark:text-white">{{ workOrder.technicianName }}</p>
+            </div>
+          </div>
+          <ng-template #noTech>
+            <p class="text-sm text-gray-400 italic">Sin técnico asignado</p>
+          </ng-template>
+        </div>
+
+        <!-- Fechas programadas -->
+        <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark"
+          *ngIf="workOrder.scheduledStart || workOrder.scheduledEnd">
+          <h4 class="mb-4 font-semibold text-black dark:text-white">Programación</h4>
+          <div class="space-y-3">
+            <div *ngIf="workOrder.scheduledStart">
+              <p class="text-xs text-gray-500 dark:text-gray-400">Inicio programado</p>
+              <p class="text-sm font-medium text-black dark:text-white">
+                {{ workOrder.scheduledStart | date:'dd/MM/yyyy HH:mm' }}
+              </p>
+            </div>
+            <div *ngIf="workOrder.scheduledEnd">
+              <p class="text-xs text-gray-500 dark:text-gray-400">Fin programado</p>
+              <p class="text-sm font-medium text-black dark:text-white">
+                {{ workOrder.scheduledEnd | date:'dd/MM/yyyy HH:mm' }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audit -->
+        <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <h4 class="mb-3 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Auditoría</h4>
+          <div class="space-y-2 text-xs text-gray-500 dark:text-gray-400">
+            <p>Creada: {{ workOrder.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+            <p *ngIf="workOrder.createdByName">Por: {{ workOrder.createdByName }}</p>
+            <p>Actualizada: {{ workOrder.updatedAt | date:'dd/MM/yyyy HH:mm' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Status Change Modal -->
+<div *ngIf="showStatusModal"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
+  <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-boxdark">
+    <h3 class="mb-4 text-lg font-bold text-black dark:text-white">
+      Confirmar Cambio de Estado
+    </h3>
+    <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+      ¿Cambiar el estado a
+      <span class="font-semibold text-black dark:text-white">{{ getStatusLabel(newStatus) }}</span>?
+    </p>
+
+    <!-- Horas reales (solo para COMPLETED) -->
+    <div *ngIf="newStatus === WorkOrderStatus.COMPLETED" class="mb-4">
+      <label class="mb-2 block text-sm font-medium text-black dark:text-white">
+        Horas reales trabajadas
+      </label>
+      <input type="number" [(ngModel)]="actualHours" min="0" step="0.5"
+        placeholder="Ej: 4.5"
+        class="w-full rounded-lg border border-stroke px-4 py-2.5 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+    </div>
+
+    <div class="mb-5">
+      <label class="mb-2 block text-sm font-medium text-black dark:text-white">
+        Notas (opcional)
+      </label>
+      <textarea [(ngModel)]="statusNotes" rows="3" placeholder="Observaciones..."
+        class="w-full rounded-lg border border-stroke px-4 py-2.5 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white resize-none"></textarea>
+    </div>
+
+    <div class="flex gap-3 justify-end">
+      <button (click)="closeStatusModal()" [disabled]="statusUpdating"
+        class="rounded-md border border-stroke px-5 py-2 text-sm font-medium text-black hover:bg-gray-2 dark:border-strokedark dark:text-white dark:hover:bg-meta-4">
+        Cancelar
+      </button>
+      <button (click)="confirmStatusChange()" [disabled]="statusUpdating"
+        [class]="getTransitionClass(newStatus)"
+        class="rounded-md px-5 py-2 text-sm font-medium disabled:opacity-60">
+        <span *ngIf="statusUpdating">Guardando...</span>
+        <span *ngIf="!statusUpdating">Confirmar</span>
+      </button>
+    </div>
+  </div>
+</div>

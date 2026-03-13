@@ -38,7 +38,7 @@ export const routes: Routes = [
       },
       {
         path: 'work-orders',
-        loadComponent: () => import('./features/work-orders/work-orders.component').then(m => m.WorkOrdersComponent)
+        loadChildren: () => import('./features/work-orders/work-orders.routes').then(m => m.WORK_ORDERS_ROUTES)
       },
       {
         path: 'assets',

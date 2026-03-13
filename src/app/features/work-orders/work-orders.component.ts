@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-work-orders',
-  imports: [],
-  templateUrl: './work-orders.component.html',
-  styleUrl: './work-orders.component.css',
+  standalone: true,
+  imports: [RouterOutlet],
+  template: '<router-outlet />'
 })
-export class WorkOrdersComponent {
-
-}
+export class WorkOrdersComponent {}
