@@ -54,7 +54,7 @@ export const routes: Routes = [
       },
       {
         path: 'personnel',
-        loadComponent: () => import('./features/personnel/personnel.component').then(m => m.PersonnelComponent)
+        loadChildren: () => import('./features/personnel/personnel.routes').then(m => m.PERSONNEL_ROUTES)
       },
       {
         path: 'customers',

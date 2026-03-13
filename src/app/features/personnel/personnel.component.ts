@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-personnel',
-  imports: [],
-  templateUrl: './personnel.component.html',
-  styleUrl: './personnel.component.css',
+  standalone: true,
+  imports: [RouterOutlet],
+  template: '<router-outlet />'
 })
-export class PersonnelComponent {
-
-}
+export class PersonnelComponent {}
