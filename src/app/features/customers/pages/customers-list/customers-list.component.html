@@ -1,0 +1,125 @@
+<div><app-page-breadcrumb pageTitle="Clientes" /></div>
+
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+
+  <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h2 class="text-title-md2 font-bold text-black dark:text-white">Clientes</h2>
+      <p class="text-sm text-gray-500 mt-1">{{ filtered.length }} cliente(s)</p>
+    </div>
+    <button (click)="goCreate()"
+      class="inline-flex items-center gap-2 rounded-md bg-primary px-6 py-3 font-medium text-white hover:bg-opacity-90">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 4.375V15.625M4.375 10H15.625" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>
+      Nuevo Cliente
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+    <div class="relative flex-1">
+      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.167 3.333a5.833 5.833 0 100 11.667 5.833 5.833 0 000-11.667zM1.667 9.167a7.5 7.5 0 1115 0 7.5 7.5 0 01-15 0z" fill="#9CA3AF"/><path fill-rule="evenodd" clip-rule="evenodd" d="M13.286 13.286a1.25 1.25 0 011.767 0l3.625 3.625a1.25 1.25 0 01-1.767 1.767l-3.625-3.625a1.25 1.25 0 010-1.767z" fill="#9CA3AF"/></svg>
+      </span>
+      <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()" placeholder="Buscar por nombre, empresa, cargo..."
+        class="w-full rounded-lg border border-stroke bg-transparent py-2.5 pl-10 pr-4 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white" />
+    </div>
+    <div class="flex gap-1">
+      <button *ngFor="let opt of statusOptions" (click)="setStatus(opt.v)"
+        [class.bg-primary]="filterStatus===opt.v" [class.text-white]="filterStatus===opt.v"
+        [class.border-primary]="filterStatus===opt.v"
+        class="rounded-lg border border-stroke px-4 py-2.5 text-sm font-medium transition-colors dark:border-strokedark hover:border-primary text-black dark:text-white">
+        {{ opt.l }}
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="flex justify-center py-20">
+    <div class="h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+  </div>
+
+  <div *ngIf="error && !loading" class="rounded-md border border-red-200 bg-red-50 p-5">
+    <p class="text-red-700">{{ error }}</p>
+    <button (click)="load()" class="mt-2 text-sm text-red-600 underline">Reintentar</button>
+  </div>
+
+  <div *ngIf="!loading && !error && filtered.length === 0"
+    class="flex flex-col items-center justify-center rounded-sm border border-stroke bg-white py-20 dark:border-strokedark dark:bg-boxdark">
+    <p class="text-5xl mb-4">👤</p>
+    <h4 class="mb-2 text-lg font-semibold text-black dark:text-white">Sin clientes</h4>
+    <p class="mb-6 text-gray-500">{{ searchQuery ? 'Sin resultados' : 'Registra el primer cliente' }}</p>
+    <button *ngIf="!searchQuery" (click)="goCreate()"
+      class="rounded-md bg-primary px-6 py-3 font-medium text-white hover:bg-opacity-90">Nuevo Cliente</button>
+  </div>
+
+  <!-- Cards -->
+  <div *ngIf="!loading && !error && filtered.length > 0"
+    class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+
+    <div *ngFor="let c of filtered" (click)="goDetail(c.id)"
+      class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark hover:border-primary transition-colors cursor-pointer flex flex-col">
+
+      <div class="p-6 flex-1">
+        <!-- Avatar + nombre -->
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white font-bold text-lg"
+              [class]="getAvatarColor(c.id)">{{ getInitials(c) }}</div>
+            <div class="min-w-0">
+              <h5 class="font-semibold text-black dark:text-white leading-tight">{{ getFullName(c) }}</h5>
+              <p class="text-xs text-gray-400">@{{ c.userName }}</p>
+            </div>
+          </div>
+          <span [class.bg-green-100]="c.isActive" [class.text-green-700]="c.isActive"
+                [class.bg-red-100]="!c.isActive"  [class.text-red-700]="!c.isActive"
+            class="inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold">
+            {{ c.isActive ? 'Activo' : 'Inactivo' }}
+          </span>
+        </div>
+
+        <div class="space-y-2">
+          <div *ngIf="c.position" class="flex items-center gap-2 text-sm text-gray-500">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+            </svg>
+            <span class="truncate">{{ c.position }}</span>
+          </div>
+          <div *ngIf="c.companyName" class="flex items-center gap-2 text-sm text-gray-500">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            <span class="truncate font-medium text-black dark:text-white">{{ c.companyName }}</span>
+          </div>
+          <div *ngIf="c.userEmail" class="flex items-center gap-2 text-sm text-gray-500">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <span class="truncate">{{ c.userEmail }}</span>
+          </div>
+          <div *ngIf="c.userPhone" class="flex items-center gap-2 text-sm text-gray-500">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/>
+            </svg>
+            <span>{{ c.userPhone }}</span>
+          </div>
+        </div>
+
+        <!-- OTs solicitadas -->
+        <div *ngIf="c.requestedWorkOrders !== undefined" class="mt-4 pt-4 border-t border-stroke dark:border-strokedark text-center">
+          <p class="text-2xl font-bold text-black dark:text-white">{{ c.requestedWorkOrders }}</p>
+          <p class="text-xs text-gray-400">OTs Solicitadas</p>
+        </div>
+      </div>
+
+      <div class="flex border-t border-stroke dark:border-strokedark">
+        <button (click)="goEdit(c.id, $event)"
+          class="flex-1 py-3 text-sm font-medium text-gray-500 hover:text-primary hover:bg-gray-2 dark:hover:bg-meta-4 transition-colors border-r border-stroke dark:border-strokedark">
+          Editar
+        </button>
+        <button (click)="delete(c.id, $event)"
+          class="flex-1 py-3 text-sm font-medium text-gray-500 hover:text-danger hover:bg-gray-2 dark:hover:bg-meta-4 transition-colors">
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

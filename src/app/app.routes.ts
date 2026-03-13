@@ -58,7 +58,7 @@ export const routes: Routes = [
       },
       {
         path: 'customers',
-        loadComponent: () => import('./features/customers/customers.component').then(m => m.CustomersComponent)
+        loadChildren: () => import('./features/customers/customers.routes').then(m => m.CUSTOMERS_ROUTES)
       },
       {
         path: 'companies-sites',
@@ -66,7 +66,7 @@ export const routes: Routes = [
       },
       {
         path: 'suppliers',
-        loadComponent: () => import('./features/suppliers/suppliers.component').then(m => m.SuppliersComponent)
+        loadChildren: () => import('./features/suppliers/suppliers.routes').then(m => m.SUPPLIERS_ROUTES)
       },
       {
         path: 'notifications',

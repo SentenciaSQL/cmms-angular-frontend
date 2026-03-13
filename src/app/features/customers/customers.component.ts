@@ -1,11 +1,4 @@
 import { Component } from '@angular/core';
-
-@Component({
-  selector: 'app-customers',
-  imports: [],
-  templateUrl: './customers.component.html',
-  styleUrl: './customers.component.css',
-})
-export class CustomersComponent {
-
-}
+import { RouterOutlet } from '@angular/router';
+@Component({ selector: 'app-customers', standalone: true, imports: [RouterOutlet], template: '<router-outlet />' })
+export class CustomersComponent {}

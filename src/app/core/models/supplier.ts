@@ -59,3 +59,11 @@ export enum SupplierType {
   MATERIALS = 'MATERIALS',
   GENERAL = 'GENERAL'
 }
+
+export const SUPPLIER_TYPES: { value: string; label: string; icon: string }[] = [
+  { value: 'PARTS',     label: 'Repuestos',    icon: '🔩' },
+  { value: 'TOOLS',     label: 'Herramientas', icon: '🔧' },
+  { value: 'SERVICES',  label: 'Servicios',    icon: '🛠️' },
+  { value: 'MATERIALS', label: 'Materiales',   icon: '🧱' },
+  { value: 'GENERAL',   label: 'General',      icon: '📦' }
+];
