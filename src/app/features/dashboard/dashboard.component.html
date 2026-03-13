@@ -1,1 +1,321 @@
-<p>dashboard works!</p>
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+
+  <!-- Header -->
+  <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h2 class="text-title-md2 font-bold text-black dark:text-white">Dashboard</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1" *ngIf="lastUpdated">
+        Actualizado: {{ lastUpdated | date:'HH:mm:ss' }}
+      </p>
+    </div>
+    <button (click)="loadStats()" [disabled]="loading"
+      class="inline-flex items-center gap-2 rounded-md border border-stroke px-4 py-2 text-sm font-medium text-black hover:bg-gray-2 dark:border-strokedark dark:text-white dark:hover:bg-meta-4 disabled:opacity-50">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        [class.animate-spin]="loading">
+        <path d="M21 12a9 9 0 11-6.219-8.56" stroke-linecap="round"/>
+      </svg>
+      Actualizar
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading && !stats" class="flex items-center justify-center py-32">
+    <div class="h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !loading"
+    class="mb-6 rounded-md border border-red-200 bg-red-50 p-5 dark:border-red-800 dark:bg-red-900/20">
+    <p class="text-red-700 dark:text-red-400 mb-2">{{ error }}</p>
+    <button (click)="loadStats()" class="text-sm text-red-600 underline">Reintentar</button>
+  </div>
+
+  <div *ngIf="stats">
+
+    <!-- ROW 1: KPIs principales -->
+    <div class="mb-5 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+
+      <!-- Total OTs -->
+      <div class="rounded-sm border border-stroke bg-white p-5 shadow-default dark:border-strokedark dark:bg-boxdark cursor-pointer hover:border-primary transition-colors"
+        (click)="navigate('/work-orders/list')">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total OTs</span>
+          <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2">
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="text-3xl font-bold text-black dark:text-white">{{ stats.totalWorkOrders }}</div>
+        <div class="mt-2 text-xs text-green-600 font-medium">{{ completionRate }}% completadas</div>
+      </div>
+
+      <!-- OTs Vencidas -->
+      <div class="rounded-sm border shadow-default p-5 cursor-pointer transition-colors"
+        [class.border-red-300]="stats.overdueWorkOrders > 0"
+        [class.bg-red-50]="stats.overdueWorkOrders > 0"
+        [class.border-stroke]="stats.overdueWorkOrders === 0"
+        [class.bg-white]="stats.overdueWorkOrders === 0"
+        [class.dark:border-strokedark]="stats.overdueWorkOrders === 0"
+        [class.dark:bg-boxdark]="stats.overdueWorkOrders === 0"
+        (click)="navigate('/work-orders/list')">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">OTs Vencidas</span>
+          <div class="flex h-10 w-10 items-center justify-center rounded-full"
+            [class.bg-red-100]="stats.overdueWorkOrders > 0"
+            [class.bg-gray-100]="stats.overdueWorkOrders === 0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2"
+              [attr.stroke]="stats.overdueWorkOrders > 0 ? '#EF4444' : '#6B7280'">
+              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="text-3xl font-bold"
+          [class.text-red-600]="stats.overdueWorkOrders > 0"
+          [class.text-black]="stats.overdueWorkOrders === 0">
+          {{ stats.overdueWorkOrders }}
+        </div>
+        <div class="mt-2 text-xs"
+          [class.text-red-500]="stats.overdueWorkOrders > 0"
+          [class.text-gray-400]="stats.overdueWorkOrders === 0">
+          {{ stats.overdueWorkOrders > 0 ? 'Requieren atención inmediata' : 'Todo al día ✓' }}
+        </div>
+      </div>
+
+      <!-- Activos -->
+      <div class="rounded-sm border border-stroke bg-white p-5 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Activos Activos</span>
+          <div class="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2">
+              <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="text-3xl font-bold text-black dark:text-white">{{ stats.activeAssets }}</div>
+        <div class="mt-2 text-xs text-gray-400">de {{ stats.totalAssets }} totales</div>
+      </div>
+
+      <!-- Técnicos -->
+      <div class="rounded-sm border border-stroke bg-white p-5 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Técnicos Disponibles</span>
+          <div class="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/30">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="text-3xl font-bold text-black dark:text-white">{{ stats.availableTechnicians }}</div>
+        <div class="mt-2 text-xs text-gray-400">{{ stats.busyTechnicians }} ocupados · {{ stats.totalTechnicians }} total</div>
+      </div>
+    </div>
+
+    <!-- ROW 2: Estado OTs + Prioridades -->
+    <div class="mb-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
+
+      <!-- Estado de OTs -->
+      <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div class="flex items-center justify-between mb-6">
+          <h4 class="font-semibold text-black dark:text-white">Estado de Órdenes de Trabajo</h4>
+          <button (click)="navigate('/work-orders/list')" class="text-xs text-primary hover:underline">Ver todas</button>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-medium text-black dark:text-white">Abiertas</span>
+              <span class="text-gray-500">{{ stats.openWorkOrders }}</span>
+            </div>
+            <div class="h-2 w-full rounded-full bg-gray-100 dark:bg-gray-700">
+              <div class="h-2 rounded-full bg-blue-500 transition-all duration-500"
+                [style.width.%]="priorityPercent(stats.openWorkOrders)"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-medium text-black dark:text-white">En Progreso</span>
+              <span class="text-gray-500">{{ stats.inProgressWorkOrders }}</span>
+            </div>
+            <div class="h-2 w-full rounded-full bg-gray-100 dark:bg-gray-700">
+              <div class="h-2 rounded-full bg-yellow-500 transition-all duration-500"
+                [style.width.%]="priorityPercent(stats.inProgressWorkOrders)"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-medium text-black dark:text-white">Completadas</span>
+              <span class="text-gray-500">{{ stats.completedWorkOrders }}</span>
+            </div>
+            <div class="h-2 w-full rounded-full bg-gray-100 dark:bg-gray-700">
+              <div class="h-2 rounded-full bg-green-500 transition-all duration-500"
+                [style.width.%]="priorityPercent(stats.completedWorkOrders)"></div>
+            </div>
+          </div>
+          <div *ngIf="stats.overdueWorkOrders > 0">
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-medium text-red-600 dark:text-red-400">⚠ Vencidas</span>
+              <span class="text-red-500">{{ stats.overdueWorkOrders }}</span>
+            </div>
+            <div class="h-2 w-full rounded-full bg-gray-100 dark:bg-gray-700">
+              <div class="h-2 rounded-full bg-red-500 transition-all duration-500"
+                [style.width.%]="priorityPercent(stats.overdueWorkOrders)"></div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 pt-5 border-t border-stroke dark:border-strokedark">
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-500">Tasa de completación</span>
+            <span class="text-lg font-bold text-green-600">{{ completionRate }}%</span>
+          </div>
+          <div class="mt-2 h-3 w-full rounded-full bg-gray-100 dark:bg-gray-700">
+            <div class="h-3 rounded-full bg-green-500 transition-all duration-700"
+              [style.width.%]="completionRate"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Distribución por Prioridad -->
+      <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <h4 class="mb-6 font-semibold text-black dark:text-white">Distribución por Prioridad</h4>
+        <div class="space-y-4">
+          <div class="flex items-center gap-4">
+            <span class="w-16 text-right text-sm font-medium text-red-600">Urgente</span>
+            <div class="flex-1 h-8 rounded-md bg-gray-100 dark:bg-gray-700 relative overflow-hidden">
+              <div class="h-full rounded-md bg-red-500 transition-all duration-700 flex items-center justify-end pr-3 min-w-[2rem]"
+                [style.width.%]="priorityPercent(stats.urgentWorkOrders) || 2">
+              </div>
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-white mix-blend-difference">
+                {{ stats.urgentWorkOrders }}
+              </span>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="w-16 text-right text-sm font-medium text-orange-600">Alta</span>
+            <div class="flex-1 h-8 rounded-md bg-gray-100 dark:bg-gray-700 relative overflow-hidden">
+              <div class="h-full rounded-md bg-orange-500 transition-all duration-700 min-w-[2rem]"
+                [style.width.%]="priorityPercent(stats.highPriorityWorkOrders) || 2"></div>
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-black dark:text-white">
+                {{ stats.highPriorityWorkOrders }}
+              </span>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="w-16 text-right text-sm font-medium text-blue-600">Media</span>
+            <div class="flex-1 h-8 rounded-md bg-gray-100 dark:bg-gray-700 relative overflow-hidden">
+              <div class="h-full rounded-md bg-blue-500 transition-all duration-700 min-w-[2rem]"
+                [style.width.%]="priorityPercent(stats.mediumPriorityWorkOrders) || 2"></div>
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-white">
+                {{ stats.mediumPriorityWorkOrders }}
+              </span>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="w-16 text-right text-sm font-medium text-gray-600">Baja</span>
+            <div class="flex-1 h-8 rounded-md bg-gray-100 dark:bg-gray-700 relative overflow-hidden">
+              <div class="h-full rounded-md bg-gray-400 transition-all duration-700 min-w-[2rem]"
+                [style.width.%]="priorityPercent(stats.lowPriorityWorkOrders) || 2"></div>
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-white">
+                {{ stats.lowPriorityWorkOrders }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 3: Métricas + Costos + Accesos rápidos -->
+    <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
+
+      <!-- Métricas de rendimiento -->
+      <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <h4 class="mb-5 font-semibold text-black dark:text-white">Métricas de Rendimiento</h4>
+        <div class="space-y-5">
+          <div class="flex items-center justify-between border-b border-stroke pb-4 dark:border-strokedark">
+            <div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Tiempo prom. completación</p>
+              <p class="text-xs text-gray-400 mt-0.5">Último mes</p>
+            </div>
+            <span class="text-lg font-bold text-black dark:text-white">{{ formatHours(stats.avgCompletionTime) }}</span>
+          </div>
+          <div class="flex items-center justify-between border-b border-stroke pb-4 dark:border-strokedark">
+            <div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Tiempo prom. respuesta</p>
+              <p class="text-xs text-gray-400 mt-0.5">Creación → inicio</p>
+            </div>
+            <span class="text-lg font-bold text-black dark:text-white">{{ formatHours(stats.avgResponseTime) }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <p class="text-sm text-gray-500 dark:text-gray-400">Disponibilidad técnicos</p>
+            <span class="text-lg font-bold"
+              [class.text-green-600]="techAvailabilityRate >= 50"
+              [class.text-orange-500]="techAvailabilityRate > 0 && techAvailabilityRate < 50"
+              [class.text-red-600]="techAvailabilityRate === 0">
+              {{ techAvailabilityRate }}%
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Costos -->
+      <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <h4 class="mb-5 font-semibold text-black dark:text-white">Costos de Mantenimiento</h4>
+        <div class="space-y-4">
+          <div class="rounded-lg bg-blue-50 dark:bg-blue-900/20 p-4">
+            <p class="text-xs text-blue-600 dark:text-blue-400 font-medium mb-1">Este mes</p>
+            <p class="text-2xl font-bold text-blue-700 dark:text-blue-300">{{ formatCost(stats.totalCostsThisMonth) }}</p>
+          </div>
+          <div class="rounded-lg bg-gray-50 dark:bg-gray-800/40 p-4">
+            <p class="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">Este año</p>
+            <p class="text-2xl font-bold text-black dark:text-white">{{ formatCost(stats.totalCostsThisYear) }}</p>
+          </div>
+          <p class="text-xs text-gray-400 text-center">Horas reales × tarifa por técnico</p>
+        </div>
+      </div>
+
+      <!-- Accesos rápidos -->
+      <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <h4 class="mb-5 font-semibold text-black dark:text-white">Accesos Rápidos</h4>
+        <div class="space-y-3">
+          <button (click)="navigate('/work-orders/create')"
+            class="flex w-full items-center gap-3 rounded-lg border border-stroke px-4 py-3 text-left hover:border-primary hover:bg-blue-50 dark:border-strokedark dark:hover:bg-blue-900/10 transition-colors">
+            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                <path d="M10 4.375V15.625M4.375 10H15.625" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="text-sm font-medium text-black dark:text-white">Nueva Orden de Trabajo</span>
+          </button>
+          <button (click)="navigate('/work-orders/list')"
+            class="flex w-full items-center gap-3 rounded-lg border border-stroke px-4 py-3 text-left hover:border-primary hover:bg-blue-50 dark:border-strokedark dark:hover:bg-blue-900/10 transition-colors">
+            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round">
+                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/>
+              </svg>
+            </div>
+            <span class="text-sm font-medium text-black dark:text-white">Ver todas las OTs</span>
+          </button>
+          <button (click)="navigate('/maintenance-plans/list')"
+            class="flex w-full items-center gap-3 rounded-lg border border-stroke px-4 py-3 text-left hover:border-primary hover:bg-blue-50 dark:border-strokedark dark:hover:bg-blue-900/10 transition-colors">
+            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/30">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round">
+                <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+              </svg>
+            </div>
+            <span class="text-sm font-medium text-black dark:text-white">Planes de Mantenimiento</span>
+          </button>
+          <button (click)="navigate('/assets')"
+            class="flex w-full items-center gap-3 rounded-lg border border-stroke px-4 py-3 text-left hover:border-primary hover:bg-blue-50 dark:border-strokedark dark:hover:bg-blue-900/10 transition-colors">
+            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round">
+                <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+              </svg>
+            </div>
+            <span class="text-sm font-medium text-black dark:text-white">Gestionar Activos</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
