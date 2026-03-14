@@ -14,12 +14,16 @@ import {TranslatePipe} from '../../../pipes/translate-pipe';
 })
 export class UserDropdownComponent implements OnInit{
   private readonly authService = inject(AuthService);
+  private auth    = inject(AuthService);
 
   isOpen = false;
   user? = this.authService.getCurrentUser();
+  userId? = this.auth.getCurrentUserId();
   username = '';
   fullName = '';
   email = '';
+  avatarUrl: string | null = null;
+  avatarPreview: string | null = null;
 
   toggleDropdown() {
     this.isOpen = !this.isOpen;
@@ -34,6 +38,20 @@ export class UserDropdownComponent implements OnInit{
     this.username = this.user?.username!;
     this.fullName = this.user?.firstName + ' ' + this.user?.lastName;
     this.email = this.user?.email!;
+  }
+
+  get initials(): string {
+    if (!this.user) return '?';
+    return ((this.user.firstName?.[0] ?? '') + (this.user.lastName?.[0] ?? '')).toUpperCase() || '?';
+  }
+
+  getAvatarColor(): string {
+    const colors = ['bg-blue-600','bg-violet-600','bg-teal-600','bg-rose-600','bg-amber-600'];
+    return colors[(this.userId ?? 0) % colors.length];
+  }
+
+  get displayAvatar(): string | null {
+    return this.avatarPreview ?? this.avatarUrl;
   }
 
   hasRole(roles: string[]): boolean {

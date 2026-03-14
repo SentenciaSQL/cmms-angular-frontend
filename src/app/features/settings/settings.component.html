@@ -1,1 +1,400 @@
-<p>settings works!</p>
+<div><app-page-breadcrumb [pageTitle]="tr('settings.title')" /></div>
+
+<div class="mx-auto max-w-screen-lg p-4 md:p-6 2xl:p-10">
+
+  <div class="mb-6">
+    <h2 class="text-title-md2 font-bold text-black dark:text-white">{{ tr('settings.title') }}</h2>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ tr('settings.subtitle') }}</p>
+  </div>
+
+  <div class="grid grid-cols-1 gap-5 lg:grid-cols-4">
+
+    <!-- Sidebar -->
+    <div class="lg:col-span-1">
+      <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark overflow-hidden dark:bg-gray-800/40">
+
+        <!-- Avatar + nombre -->
+        <div class="p-6 text-center border-b border-stroke dark:border-strokedark">
+          <div class="relative mx-auto mb-3 w-16 h-16">
+            <img *ngIf="displayAvatar" [src]="displayAvatar" alt="avatar"
+              class="h-16 w-16 rounded-full object-cover ring-1 ring-primary ring-offset-1" />
+            <div *ngIf="!displayAvatar"
+              class="flex h-16 w-16 items-center justify-center rounded-full text-white font-bold text-xl"
+              [class]="getAvatarColor()">{{ initials }}</div>
+            <div *ngIf="uploadingAvatar"
+              class="absolute inset-0 flex items-center justify-center rounded-full bg-black/50">
+              <div class="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+            </div>
+          </div>
+          <p class="font-semibold text-black dark:text-white">{{ fullName }}</p>
+          <p class="text-xs text-gray-400 mt-0.5">&#64;{{ user?.username }}</p>
+          <span class="mt-2 inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-black dark:text-white">
+            {{ roleLabel }}
+          </span>
+        </div>
+
+        <!-- Nav tabs -->
+        <nav class="p-2">
+          <button *ngFor="let tab of tabs" (click)="setTab(tab.v)"
+            class="w-full flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors text-left"
+            [ngClass]="activeTab===tab.v
+              ? 'bg-primary text-black dark:text-white'
+              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-2 dark:hover:bg-meta-4'">
+            <span>{{ tab.icon }}</span>{{ tab.label }}
+          </button>
+        </nav>
+
+        <!-- Logout -->
+        <div class="p-3 border-t border-stroke dark:border-strokedark">
+          <button (click)="logout()"
+            class="w-full flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+            </svg>
+            {{ tr('settings.logout') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido -->
+    <div class="lg:col-span-3">
+
+      <!-- TAB PERFIL -->
+      <div *ngIf="activeTab==='profile'" class="space-y-5">
+
+        <!-- Foto -->
+        <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark dark:bg-gray-800/40">
+          <div class="border-b border-stroke dark:border-strokedark px-7 py-4">
+            <h3 class="font-semibold text-black dark:text-white">{{ tr('settings.profile.photo') }}</h3>
+          </div>
+          <div class="p-7">
+            <div *ngIf="uploadAvatarError"
+              class="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+              {{ uploadAvatarError }}
+            </div>
+            <div class="flex flex-col sm:flex-row items-center gap-6">
+              <div class="relative shrink-0">
+                <img *ngIf="displayAvatar" [src]="displayAvatar" alt="avatar"
+                  class="h-28 w-28 rounded-full object-cover ring-1 ring-primary/20" />
+                <div *ngIf="!displayAvatar"
+                  class="flex h-28 w-28 items-center justify-center rounded-full text-white font-bold text-3xl ring-2 ring-primary/20"
+                  [class]="getAvatarColor()">{{ initials }}</div>
+                <div *ngIf="uploadingAvatar"
+                  class="absolute inset-0 flex flex-col items-center justify-center rounded-full bg-black/60">
+                  <div class="h-7 w-7 animate-spin rounded-full border-2 border-white border-t-transparent mb-1"></div>
+                  <p class="text-white text-xs">{{ tr('settings.profile.uploading') }}</p>
+                </div>
+              </div>
+              <div class="flex-1 text-center sm:text-left">
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                  {{ tr('settings.profile.photoDesc') }}<br>
+                  {{ tr('settings.profile.photoSize') }} max. {{ tr('settings.profile.photoSizeDesc') }}
+                </p>
+                <div class="flex flex-wrap gap-3 justify-center sm:justify-start">
+                  <input #fileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)" />
+                  <button (click)="fileInput.click()" [disabled]="uploadingAvatar"
+                    class="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-black dark:text-white hover:bg-opacity-90 disabled:opacity-60 transition-colors">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                    </svg>
+                    {{ uploadingAvatar ? tr('settings.profile.uploading') : tr('settings.profile.uploadBtn') }}
+                  </button>
+                  <button *ngIf="displayAvatar && !uploadingAvatar" (click)="removeAvatar()"
+                    class="inline-flex items-center gap-2 rounded-md border border-red-200 px-5 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-900/20 transition-colors">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                      <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
+                    </svg>
+                    {{ tr('settings.profile.removeBtn') }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información del perfil -->
+        <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark dark:bg-gray-800/40">
+          <div class="border-b border-stroke dark:border-strokedark px-7 py-4">
+            <h3 class="font-semibold text-black dark:text-white">{{ tr('settings.profile.info') }}</h3>
+          </div>
+          <div class="p-7">
+            <div *ngIf="!user" class="text-center py-10 text-gray-400 dark:text-gray-500">
+              {{ tr('common.noData') }}
+            </div>
+            <div *ngIf="user" class="space-y-5">
+              <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <div>
+                  <label class="mb-2 block text-sm font-medium text-black dark:text-white">{{ tr('settings.profile.firstName') }}</label>
+                  <div class="rounded-lg border border-stroke bg-gray-50 px-4 py-3 dark:border-strokedark dark:bg-meta-4 dark:bg-gray-800/40">
+                    <p class="text-black dark:text-white">{{ user.firstName }}</p>
+                  </div>
+                </div>
+                <div>
+                  <label class="mb-2 block text-sm font-medium text-black dark:text-white">{{ tr('settings.profile.lastName') }}</label>
+                  <div class="rounded-lg border border-stroke bg-gray-50 px-4 py-3 dark:border-strokedark dark:bg-meta-4 dark:bg-gray-800/40">
+                    <p class="text-black dark:text-white">{{ user.lastName }}</p>
+                  </div>
+                </div>
+                <div>
+                  <label class="mb-2 block text-sm font-medium text-black dark:text-white">{{ tr('settings.profile.username') }}</label>
+                  <div class="rounded-lg border border-stroke bg-gray-50 px-4 py-3 dark:border-strokedark dark:bg-meta-4 dark:bg-gray-800/40">
+                    <p class="font-mono text-black dark:text-white">&#64;{{ user.username }}</p>
+                  </div>
+                </div>
+                <div>
+                  <label class="mb-2 block text-sm font-medium text-black dark:text-white">{{ tr('settings.profile.email') }}</label>
+                  <div class="rounded-lg border border-stroke bg-gray-50 px-4 py-3 dark:border-strokedark dark:bg-meta-4 dark:bg-gray-800/40">
+                    <p class="text-black dark:text-white">{{ user.email }}</p>
+                  </div>
+                </div>
+                <div *ngIf="user.phone">
+                  <label class="mb-2 block text-sm font-medium text-black dark:text-white">{{ tr('settings.profile.phone') }}</label>
+                  <div class="rounded-lg border border-stroke bg-gray-50 px-4 py-3 dark:border-strokedark dark:bg-meta-4 dark:bg-gray-800/40">
+                    <p class="text-black dark:text-white">{{ user.phone }}</p>
+                  </div>
+                </div>
+                <div>
+                  <label class="mb-2 block text-sm font-medium text-black dark:text-white">{{ tr('settings.profile.role') }}</label>
+                  <div class="rounded-lg border border-stroke bg-gray-50 px-4 py-3 dark:border-strokedark dark:bg-meta-4 dark:bg-gray-800/40">
+                    <span class="inline-flex rounded-full bg-primary/10 px-3 py-0.5 text-sm font-medium text-black dark:text-white">
+                      {{ roleLabel }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/50 dark:bg-blue-900/20">
+                <div class="flex items-start gap-3">
+                  <svg class="mt-0.5 text-blue-500 shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                  <p class="text-sm text-blue-700 dark:text-blue-400">{{ tr('settings.profile.notice') }}</p>
+                </div>
+              </div>
+
+              <div class="rounded-lg border border-stroke bg-gray-50 p-4 dark:border-strokedark dark:bg-meta-4 dark:bg-gray-800/40">
+                <p class="text-xs text-gray-400 dark:text-gray-500 mb-1">{{ tr('settings.profile.userId') }}</p>
+                <p class="font-mono text-sm text-black dark:text-white">{{ userId ?? '—' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB SEGURIDAD -->
+      <div *ngIf="activeTab==='security'"
+        class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div class="border-b border-stroke dark:border-strokedark px-7 py-4">
+          <h3 class="font-semibold text-black dark:text-white">{{ tr('settings.security.title') }}</h3>
+        </div>
+        <div class="p-7">
+
+          <div *ngIf="pwSuccess"
+            class="mb-5 flex items-center gap-3 rounded-md border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
+            <svg class="text-green-600 shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p class="text-green-700 dark:text-green-400 text-sm font-medium">{{ tr('settings.security.successMsg') }}</p>
+          </div>
+
+          <div *ngIf="pwError"
+            class="mb-5 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+            {{ pwError }}
+          </div>
+
+          <div class="space-y-5 max-w-md">
+
+            <div>
+              <label class="mb-2 block text-sm font-medium text-black dark:text-white">
+                {{ tr('settings.security.currentPassword') }} <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <input [type]="showCurrent ? 'text' : 'password'"
+                  [(ngModel)]="pwForm.currentPassword" name="currentPassword"
+                  [placeholder]="tr('settings.security.currentPlaceholder')"
+                  class="w-full rounded-lg border border-stroke bg-white px-4 py-3 pr-12 text-black outline-none focus:border-primary dark:border-strokedark dark:bg-form-input dark:text-white" />
+                <button type="button" (click)="showCurrent=!showCurrent"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black dark:hover:text-white">
+                  <svg *ngIf="!showCurrent" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg *ngIf="showCurrent"  width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24M1 1l22 22"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-medium text-black dark:text-white">
+                {{ tr('settings.security.newPassword') }} <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <input [type]="showNew ? 'text' : 'password'"
+                  [(ngModel)]="pwForm.newPassword" name="newPassword"
+                  [placeholder]="tr('settings.security.newPlaceholder')"
+                  class="w-full rounded-lg border border-stroke bg-white px-4 py-3 pr-12 text-black outline-none focus:border-primary dark:border-strokedark dark:bg-form-input dark:text-white" />
+                <button type="button" (click)="showNew=!showNew"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black dark:hover:text-white">
+                  <svg *ngIf="!showNew" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg *ngIf="showNew"  width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24M1 1l22 22"/></svg>
+                </button>
+              </div>
+              <div *ngIf="pwForm.newPassword" class="mt-2">
+                <div class="h-1.5 w-full rounded-full bg-gray-100 dark:bg-gray-700">
+                  <div class="h-1.5 rounded-full transition-all duration-500" [class]="pwStrength.color" [style.width.%]="pwStrength.width"></div>
+                </div>
+                <p class="mt-1 text-xs"
+                  [class.text-red-500]="pwStrength.width<=40"
+                  [class.text-yellow-500]="pwStrength.width===60"
+                  [class.text-blue-500]="pwStrength.width===80"
+                  [class.text-green-600]="pwStrength.width===100">
+                  {{ pwStrength.label }}
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-medium text-black dark:text-white">
+                {{ tr('settings.security.confirmPassword') }} <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <input [type]="showConfirm ? 'text' : 'password'"
+                  [(ngModel)]="pwForm.confirmPassword" name="confirmPassword"
+                  [placeholder]="tr('settings.security.confirmPlaceholder')"
+                  class="w-full rounded-lg border border-stroke bg-white px-4 py-3 pr-12 text-black outline-none focus:border-primary dark:border-strokedark dark:bg-form-input dark:text-white"
+                  [class.border-green-400]="pwForm.confirmPassword && pwForm.newPassword===pwForm.confirmPassword"
+                  [class.border-red-400]="pwForm.confirmPassword && pwForm.newPassword!==pwForm.confirmPassword" />
+                <button type="button" (click)="showConfirm=!showConfirm"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black dark:hover:text-white">
+                  <svg *ngIf="!showConfirm" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg *ngIf="showConfirm"  width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24M1 1l22 22"/></svg>
+                </button>
+              </div>
+              <p *ngIf="pwForm.confirmPassword && pwForm.newPassword!==pwForm.confirmPassword"
+                class="mt-1 text-xs text-red-500">{{ tr('settings.security.noMatch') }}</p>
+            </div>
+
+            <button (click)="changePassword()" [disabled]="pwLoading"
+              class="w-full rounded-md bg-primary py-3 font-medium text-white hover:bg-opacity-90 disabled:opacity-60">
+              {{ pwLoading ? tr('settings.security.updating') : tr('settings.security.updateBtn') }}
+            </button>
+          </div>
+
+          <div class="mt-8 rounded-lg border border-stroke bg-gray-50 p-5 dark:border-strokedark dark:bg-meta-4">
+            <h4 class="mb-3 text-sm font-semibold text-black dark:text-white">{{ tr('settings.security.tips.title') }}</h4>
+            <ul class="space-y-2 text-xs text-gray-500 dark:text-gray-400">
+              <li class="flex items-center gap-2"><span class="text-green-500">✓</span> {{ tr('settings.security.tips.tip1') }}</li>
+              <li class="flex items-center gap-2"><span class="text-green-500">✓</span> {{ tr('settings.security.tips.tip2') }}</li>
+              <li class="flex items-center gap-2"><span class="text-green-500">✓</span> {{ tr('settings.security.tips.tip3') }}</li>
+              <li class="flex items-center gap-2"><span class="text-green-500">✓</span> {{ tr('settings.security.tips.tip4') }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB PREFERENCIAS -->
+      <div *ngIf="activeTab==='preferences'"
+        class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div class="border-b border-stroke dark:border-strokedark px-7 py-4">
+          <h3 class="font-semibold text-black dark:text-white">{{ tr('settings.preferences.title') }}</h3>
+        </div>
+        <div class="p-7 space-y-6">
+
+          <div *ngIf="profileSuccess"
+            class="flex items-center gap-3 rounded-md border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
+            <svg class="text-green-600 shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p class="text-green-700 dark:text-green-400 text-sm font-medium">{{ tr('settings.preferences.savedMsg') }}</p>
+          </div>
+
+          <!-- Idioma -->
+          <div>
+            <h4 class="mb-4 text-sm font-semibold text-black dark:text-white">{{ tr('settings.preferences.language') }}</h4>
+            <div class="flex gap-3">
+              <label
+                [ngClass]="prefs.language==='es'
+                  ? 'border-primary bg-blue-50 dark:bg-blue-900/20'
+                  : 'border-stroke dark:border-strokedark'"
+                class="flex items-center gap-3 cursor-pointer rounded-lg border p-4 flex-1 transition-colors">
+                <input type="radio" [(ngModel)]="prefs.language" name="language" value="es" class="accent-primary" />
+                <div>
+                  <p class="text-sm font-semibold text-black dark:text-white">ES</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Español</p>
+                </div>
+              </label>
+              <label
+                [ngClass]="prefs.language==='en'
+                  ? 'border-primary bg-blue-50 dark:bg-blue-900/20'
+                  : 'border-stroke dark:border-strokedark'"
+                class="flex items-center gap-3 cursor-pointer rounded-lg border p-4 flex-1 transition-colors">
+                <input type="radio" [(ngModel)]="prefs.language" name="language" value="en" class="accent-primary" />
+                <div>
+                  <p class="text-sm font-semibold text-black dark:text-white">EN</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">English</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Notificaciones -->
+          <div>
+            <h4 class="mb-4 text-sm font-semibold text-black dark:text-white">{{ tr('settings.preferences.notifications') }}</h4>
+            <div class="space-y-3">
+              <label class="flex items-center justify-between cursor-pointer p-4 rounded-lg border border-stroke bg-gray-50 dark:border-strokedark dark:bg-meta-4 hover:bg-gray-2 dark:hover:bg-boxdark transition-colors">
+                <div>
+                  <p class="text-sm font-medium text-black dark:text-white">{{ tr('settings.preferences.emailNotif') }}</p>
+                  <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{{ tr('settings.preferences.emailNotifDesc') }}</p>
+                </div>
+                <div class="relative ml-4">
+                  <input type="checkbox" [(ngModel)]="prefs.emailNotifications" name="emailNotif" class="sr-only" />
+                  <div class="h-6 w-11 rounded-full transition" [class.bg-primary]="prefs.emailNotifications" [class.bg-gray-300]="!prefs.emailNotifications">
+                    <div class="absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform"
+                      [style.transform]="prefs.emailNotifications ? 'translateX(1.375rem)' : 'translateX(0.25rem)'"></div>
+                  </div>
+                </div>
+              </label>
+              <label class="flex items-center justify-between cursor-pointer p-4 rounded-lg border border-stroke bg-gray-50 dark:border-strokedark dark:bg-meta-4 hover:bg-gray-2 dark:hover:bg-boxdark transition-colors">
+                <div>
+                  <p class="text-sm font-medium text-black dark:text-white">{{ tr('settings.preferences.browserNotif') }}</p>
+                  <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{{ tr('settings.preferences.browserNotifDesc') }}</p>
+                </div>
+                <div class="relative ml-4">
+                  <input type="checkbox" [(ngModel)]="prefs.browserNotifications" name="browserNotif" class="sr-only" />
+                  <div class="h-6 w-11 rounded-full transition" [class.bg-primary]="prefs.browserNotifications" [class.bg-gray-300]="!prefs.browserNotifications">
+                    <div class="absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform"
+                      [style.transform]="prefs.browserNotifications ? 'translateX(1.375rem)' : 'translateX(0.25rem)'"></div>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Vista -->
+          <div>
+            <h4 class="mb-4 text-sm font-semibold text-black dark:text-white">{{ tr('settings.preferences.view') }}</h4>
+            <label class="flex items-center justify-between cursor-pointer p-4 rounded-lg border border-stroke bg-gray-50 dark:border-strokedark dark:bg-meta-4 hover:bg-gray-2 dark:hover:bg-boxdark transition-colors">
+              <div>
+                <p class="text-sm font-medium text-black dark:text-white">{{ tr('settings.preferences.compactMode') }}</p>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{{ tr('settings.preferences.compactModeDesc') }}</p>
+              </div>
+              <div class="relative ml-4">
+                <input type="checkbox" [(ngModel)]="prefs.compactMode" name="compactMode" class="sr-only" />
+                <div class="h-6 w-11 rounded-full transition" [class.bg-primary]="prefs.compactMode" [class.bg-gray-300]="!prefs.compactMode">
+                  <div class="absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform"
+                    [style.transform]="prefs.compactMode ? 'translateX(1.375rem)' : 'translateX(0.25rem)'"></div>
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <div class="pt-2">
+            <button (click)="savePrefs()"
+              class="rounded-md bg-primary px-8 py-3 font-medium text-white hover:bg-opacity-90">
+              {{ tr('settings.preferences.saveBtn') }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

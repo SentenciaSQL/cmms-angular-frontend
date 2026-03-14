@@ -72,13 +72,12 @@ export const routes: Routes = [
         path: 'notifications',
         loadComponent: () => import('./features/notifications/notifications.component').then(m => m.NotificationsComponent)
       },
-
-      {
-        path: 'reports',
-        loadChildren: () => import('./features/reports/reports.routes').then(m => m.REPORTS_ROUTES)
-      },
-      {
-        path: 'settings',
+        {
+          path: 'reports',
+          loadChildren: () => import('./features/reports/reports.routes').then(m => m.REPORTS_ROUTES)
+        },
+        {
+          path: 'settings',
         loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent)
       }
 
